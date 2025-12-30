@@ -12,6 +12,7 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { AuditAction } from '../../entities/audit-log.entity';
 import { RoleType } from '../../entities/role.entity';
 import { MessagesService } from '../messages/messages.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 /**
  * Ads Service
@@ -30,6 +31,8 @@ export class AdsService {
     private auditLogService: AuditLogService,
     @Inject(forwardRef(() => MessagesService))
     private messagesService: MessagesService,
+    @Inject(forwardRef(() => PermissionsService))
+    private permissionsService: PermissionsService,
   ) {}
 
   /**
@@ -178,8 +181,10 @@ export class AdsService {
 
   /**
    * Update ad
-   * Users can only update their own ads before approval
+   * Users can update their own ads (all statuses)
    * Admins can update any ad
+   * If owner updates APPROVED or REJECTED ad, status changes to PENDING_APPROVAL
+   * approvedAt is preserved when status changes back to PENDING_APPROVAL
    */
   async update(id: string, updateAdDto: UpdateAdDto, user: User): Promise<Ad> {
     const ad = await this.findOne(id, false, user);
@@ -187,14 +192,20 @@ export class AdsService {
     const isAdmin = user.role.name === RoleType.ADMIN || user.role.name === RoleType.SUPER_ADMIN;
     const isOwner = ad.userId === user.id;
 
-    // Users can only update their own ads before approval
+    // Users can only update their own ads
     if (!isAdmin && !isOwner) {
       throw new ForbiddenException('You can only update your own ads');
     }
 
-    // Users cannot update approved/rejected ads
+    // Store original approvedAt before any changes
+    const originalApprovedAt = ad.approvedAt;
+
+    // If owner updates APPROVED or REJECTED ad, change status to PENDING_APPROVAL
+    // and clear rejection reason, but preserve approvedAt
     if (!isAdmin && isOwner && (ad.status === AdStatus.APPROVED || ad.status === AdStatus.REJECTED)) {
-      throw new ForbiddenException('Cannot update approved or rejected ads');
+      ad.status = AdStatus.PENDING_APPROVAL;
+      ad.rejectionReason = null; // Clear rejection reason when resubmitting
+      // Keep approvedAt unchanged - it will be preserved
     }
 
     // If admin is updating, log the action
@@ -215,11 +226,18 @@ export class AdsService {
     }
 
     Object.assign(ad, updateAdDto);
+    
+    // Preserve approvedAt if it existed before (don't overwrite it)
+    if (originalApprovedAt) {
+      ad.approvedAt = originalApprovedAt;
+    }
+    
     return this.adsRepository.save(ad);
   }
 
   /**
    * Approve ad (Admin/Super Admin with ads.approve permission)
+   * Preserves original approvedAt if ad was previously approved
    */
   async approve(id: string, approveAdDto: ApproveAdDto, admin: User): Promise<Ad> {
     const ad = await this.findOne(id, false, admin);
@@ -228,9 +246,15 @@ export class AdsService {
       throw new BadRequestException('Ad is already approved');
     }
 
+    // Preserve original approvedAt if it exists (don't overwrite it)
+    const originalApprovedAt = ad.approvedAt;
+
     ad.status = AdStatus.APPROVED;
     ad.approvedBy = admin.id;
-    ad.approvedAt = new Date();
+    // Only set approvedAt if it doesn't exist (first time approval)
+    if (!originalApprovedAt) {
+      ad.approvedAt = new Date();
+    }
     ad.rejectionReason = null; // Clear rejection reason if any
 
     const savedAd = await this.adsRepository.save(ad);
@@ -298,7 +322,7 @@ export class AdsService {
 
   /**
    * Delete ad (soft delete)
-   * Only ad owner or admin can delete
+   * Only ad owner or admin with ads.delete permission can delete
    */
   async remove(id: string, user: User): Promise<void> {
     const ad = await this.findOne(id, false, user);
@@ -310,11 +334,21 @@ export class AdsService {
       throw new ForbiddenException('You can only delete your own ads');
     }
 
+    // For admins (not owners), check if they have ads.delete permission
+    // Super Admin always has all permissions
+    // Owners can always delete their own ads
+    if (isAdmin && !isOwner) {
+      const hasDeletePermission = await this.permissionsService.hasPermission(user, 'ads.delete');
+      if (!hasDeletePermission) {
+        throw new ForbiddenException('You do not have permission to delete ads');
+      }
+    }
+
     ad.deletedAt = new Date();
     await this.adsRepository.save(ad);
 
     // Log action if admin
-    if (isAdmin) {
+    if (isAdmin && !isOwner) {
       await this.auditLogService.log({
         action: AuditAction.AD_DELETED,
         adminId: user.id,

@@ -6,6 +6,7 @@ import { Ad } from '../../entities/ad.entity';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { GuardsModule } from '../guards/guards.module';
 import { MessagesModule } from '../messages/messages.module';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MessagesModule } from '../messages/messages.module';
     AuditLogModule,
     GuardsModule, // Provides PermissionsGuard and RolesGuard with their dependencies
     forwardRef(() => MessagesModule), // For sending messages when ad is rejected
+    PermissionsModule, // For checking admin permissions
   ],
   controllers: [AdsController],
   providers: [AdsService],

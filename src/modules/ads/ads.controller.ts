@@ -198,12 +198,13 @@ export class AdsController {
 
   /**
    * Delete ad
-   * Only owner or admin can delete
+   * Only owner or admin with ads.delete permission can delete
+   * Note: Permission check is done in service to allow owners to delete their own ads
    */
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete ad (owner or admin only)' })
+  @ApiOperation({ summary: 'Delete ad (owner or admin with ads.delete permission)' })
   @ApiResponse({ status: 200, description: 'Ad deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {

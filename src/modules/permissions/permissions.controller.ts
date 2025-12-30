@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PermissionsService } from './permissions.service';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
@@ -6,6 +6,8 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { Roles } from '../../decorators/roles.decorator';
 import { RoleType } from '../../entities/role.entity';
 import { Permissions } from '../../decorators/permissions.decorator';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import { User } from '../../entities/user.entity';
 
 @ApiTags('Permissions')
 @Controller('permissions')
@@ -22,10 +24,14 @@ export class PermissionsController {
   }
 
   @Get('admin/:adminId')
-  @Roles(RoleType.SUPER_ADMIN)
-  @Permissions('admins.manage')
-  @ApiOperation({ summary: 'Get admin permissions (Super Admin only)' })
-  async getAdminPermissions(@Param('adminId') adminId: string) {
+  @Roles(RoleType.SUPER_ADMIN, RoleType.ADMIN)
+  @ApiOperation({ summary: 'Get admin permissions (Super Admin or own permissions)' })
+  async getAdminPermissions(@Param('adminId') adminId: string, @CurrentUser() user: User) {
+    // Super Admin can see any admin's permissions
+    // Regular Admin can only see their own permissions
+    if (user.role.name !== RoleType.SUPER_ADMIN && user.id !== adminId) {
+      throw new ForbiddenException('You can only view your own permissions');
+    }
     return this.permissionsService.getAdminPermissions(adminId);
   }
 
