@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, Between, IsNull } from 'typeorm';
 import { Ad, AdStatus } from '../../entities/ad.entity';
 import { User } from '../../entities/user.entity';
+import { Bookmark } from '../../entities/bookmark.entity';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { UpdateAdDto } from './dto/update-ad.dto';
 import { FilterAdsDto } from './dto/filter-ads.dto';
@@ -28,6 +29,8 @@ export class AdsService {
   constructor(
     @InjectRepository(Ad)
     private adsRepository: Repository<Ad>,
+    @InjectRepository(Bookmark)
+    private bookmarksRepository: Repository<Bookmark>,
     private auditLogService: AuditLogService,
     @Inject(forwardRef(() => MessagesService))
     private messagesService: MessagesService,
@@ -438,5 +441,91 @@ export class AdsService {
       relations: ['category', 'subcategory', 'city', 'images'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  /**
+   * Bookmark an ad
+   */
+  async bookmarkAd(adId: string, userId: string): Promise<Bookmark> {
+    // Check if ad exists
+    const ad = await this.adsRepository.findOne({
+      where: { id: adId, deletedAt: IsNull() },
+    });
+
+    if (!ad) {
+      throw new NotFoundException('Ad not found');
+    }
+
+    // Check if already bookmarked
+    const existingBookmark = await this.bookmarksRepository.findOne({
+      where: { adId, userId },
+    });
+
+    if (existingBookmark) {
+      return existingBookmark; // Already bookmarked
+    }
+
+    // Create new bookmark
+    const bookmark = this.bookmarksRepository.create({
+      adId,
+      userId,
+    });
+
+    return this.bookmarksRepository.save(bookmark);
+  }
+
+  /**
+   * Remove bookmark from an ad
+   */
+  async unbookmarkAd(adId: string, userId: string): Promise<void> {
+    const bookmark = await this.bookmarksRepository.findOne({
+      where: { adId, userId },
+    });
+
+    if (!bookmark) {
+      throw new NotFoundException('Bookmark not found');
+    }
+
+    await this.bookmarksRepository.remove(bookmark);
+  }
+
+  /**
+   * Get user's bookmarked ads
+   */
+  async getBookmarkedAds(userId: string, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+
+    const [bookmarks, total] = await this.bookmarksRepository.findAndCount({
+      where: { userId },
+      relations: ['ad', 'ad.category', 'ad.subcategory', 'ad.city', 'ad.images', 'ad.user'],
+      order: { createdAt: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    // Filter out deleted ads
+    const validBookmarks = bookmarks.filter((bookmark) => !bookmark.ad.deletedAt);
+    const ads = validBookmarks.map((bookmark) => bookmark.ad);
+
+    return {
+      data: ads,
+      pagination: {
+        total: validBookmarks.length,
+        page,
+        limit,
+        totalPages: Math.ceil(validBookmarks.length / limit),
+      },
+    };
+  }
+
+  /**
+   * Check if ad is bookmarked by user
+   */
+  async isBookmarked(adId: string, userId: string): Promise<boolean> {
+    const bookmark = await this.bookmarksRepository.findOne({
+      where: { adId, userId },
+    });
+
+    return !!bookmark;
   }
 }

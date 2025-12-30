@@ -27,6 +27,7 @@ import { Permission } from './entities/permission.entity';
 import { AdminPermission } from './entities/admin-permission.entity';
 import { Report } from './entities/report.entity';
 import { AuditLog } from './entities/audit-log.entity';
+import { Bookmark } from './entities/bookmark.entity';
 
 /**
  * Main application module
@@ -65,6 +66,7 @@ import { AuditLog } from './entities/audit-log.entity';
         AdminPermission,
         Report,
         AuditLog,
+        Bookmark,
       ],
       synchronize: process.env.NODE_ENV !== 'production', // Auto-sync in dev mode
       logging: process.env.NODE_ENV === 'development',

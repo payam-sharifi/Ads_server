@@ -15,6 +15,7 @@ import { Role } from './role.entity';
 import { AdminPermission } from './admin-permission.entity';
 import { Report } from './report.entity';
 import { AuditLog } from './audit-log.entity';
+import { Bookmark } from './bookmark.entity';
 import { Exclude } from 'class-transformer';
 
 /**
@@ -93,5 +94,8 @@ export class User {
 
   @OneToMany(() => AuditLog, (auditLog) => auditLog.admin)
   auditLogs: AuditLog[];
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  bookmarks: Bookmark[];
 }
 

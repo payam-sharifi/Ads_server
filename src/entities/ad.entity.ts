@@ -14,6 +14,7 @@ import { Category } from './category.entity';
 import { City } from './city.entity';
 import { Image } from './image.entity';
 import { Message } from './message.entity';
+import { Bookmark } from './bookmark.entity';
 
 /**
  * Ad entity representing classified advertisements
@@ -165,5 +166,8 @@ export class Ad {
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'rejected_by' })
   rejector: User;
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.ad)
+  bookmarks: Bookmark[];
 }
 
