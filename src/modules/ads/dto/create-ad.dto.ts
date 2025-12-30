@@ -7,6 +7,7 @@ import {
   MinLength,
   Min,
   IsArray,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AdCondition } from '../../../entities/ad.entity';
@@ -65,5 +66,40 @@ export class CreateAdDto {
   @IsEnum(AdCondition)
   @IsOptional()
   condition?: AdCondition;
+
+  @ApiPropertyOptional({
+    description: 'Category-specific metadata (e.g., real estate details, vehicle specs)',
+    example: {
+      type: 'rent', // 'rent' or 'sale' for real estate
+      rentPrice: 1200,
+      deposit: 2400,
+      area: 80,
+      floor: 3,
+      yearBuilt: 2010,
+      heating: 'central',
+      renovated: true,
+      additionalCosts: 200,
+    },
+  })
+  @IsOptional()
+  metadata?: Record<string, any>;
+
+  @ApiPropertyOptional({
+    description: 'Whether to show owner email publicly',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  showEmail?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Whether to show owner phone publicly',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  showPhone?: boolean;
 }
 
