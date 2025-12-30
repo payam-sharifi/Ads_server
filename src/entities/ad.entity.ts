@@ -127,6 +127,15 @@ export class Ad {
   @Column({ type: 'boolean', default: false, name: 'is_premium' })
   isPremium: boolean;
 
+  @Column({ type: 'boolean', default: false, name: 'show_email' })
+  showEmail: boolean; // Whether to show owner's email publicly
+
+  @Column({ type: 'boolean', default: false, name: 'show_phone' })
+  showPhone: boolean; // Whether to show owner's phone publicly
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: Record<string, any>; // Category-specific fields (e.g., real estate details, vehicle specs)
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

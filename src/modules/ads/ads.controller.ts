@@ -93,8 +93,11 @@ export class AdsController {
   /**
    * Get ad by ID
    * Automatically increments view count
+   * Public endpoint but uses JwtAuthGuard to extract user if token is provided
+   * This allows admins to see all ads (including pending/rejected) when authenticated
    */
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @Public()
   @ApiOperation({ summary: 'Get ad by ID' })
   @ApiResponse({ status: 200, description: 'Ad retrieved successfully' })
