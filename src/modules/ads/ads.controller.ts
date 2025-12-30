@@ -70,6 +70,27 @@ export class AdsController {
   }
 
   /**
+   * Get user's bookmarked ads
+   * IMPORTANT: This route must come BEFORE ':id' to avoid route matching conflicts
+   */
+  @Get('bookmarked')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: "Get current user's bookmarked ads" })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 200, description: 'Bookmarked ads retrieved successfully' })
+  getBookmarkedAds(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @CurrentUser() user?: User,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.adsService.getBookmarkedAds(user.id, pageNum, limitNum);
+  }
+
+  /**
    * Get ad by ID
    * Automatically increments view count
    */
@@ -210,5 +231,32 @@ export class AdsController {
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     return this.adsService.remove(id, user);
   }
+
+  /**
+   * Bookmark an ad
+   */
+  @Post(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Bookmark an ad' })
+  @ApiResponse({ status: 201, description: 'Ad bookmarked successfully' })
+  @ApiResponse({ status: 404, description: 'Ad not found' })
+  bookmark(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.adsService.bookmarkAd(id, user.id);
+  }
+
+  /**
+   * Remove bookmark from an ad
+   */
+  @Delete(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Remove bookmark from an ad' })
+  @ApiResponse({ status: 200, description: 'Bookmark removed successfully' })
+  @ApiResponse({ status: 404, description: 'Bookmark not found' })
+  unbookmark(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.adsService.unbookmarkAd(id, user.id);
+  }
+
 }
 
