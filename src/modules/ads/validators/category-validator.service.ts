@@ -75,9 +75,6 @@ export class CategoryValidatorService {
       elevator: dto.elevator,
       parkingIncluded: dto.parkingIncluded,
       cellar: dto.cellar,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
-      contactEmail: dto.contactEmail,
     });
 
     const errors = await validate(realEstateDto);
@@ -118,8 +115,6 @@ export class CategoryValidatorService {
       damageStatus: dto.damageStatus,
       inspectionValidUntil: dto.inspectionValidUntil,
       postalCode: dto.postalCode,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
     });
 
     const errors = await validate(vehicleDto);
@@ -145,9 +140,6 @@ export class CategoryValidatorService {
       serviceRadius: dto.serviceRadius,
       experienceYears: dto.experienceYears,
       certificates: dto.certificates,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
-      contactEmail: dto.contactEmail,
     });
 
     const errors = await validate(serviceDto);

@@ -44,7 +44,11 @@ export class CreateRealEstateAdDto {
   @ApiProperty({ example: '10115', description: 'Postal code' })
   @IsString()
   @MinLength(5)
-  postalCode: string;
+  @ApiPropertyOptional({ example: '10115', description: 'Postal code' })
+  @IsString()
+  @MinLength(5)
+  @IsOptional()
+  postalCode?: string;
 
   @ApiPropertyOptional({ example: 'Mitte', description: 'District/Neighborhood' })
   @IsString()
@@ -137,19 +141,6 @@ export class CreateRealEstateAdDto {
   cellar?: boolean;
 
   // Contact
-  @ApiProperty({ example: 'علی محمدی', description: 'Contact name' })
-  @IsString()
-  @MinLength(2)
-  contactName: string;
-
-  @ApiProperty({ example: '+49123456789', description: 'Contact phone' })
-  @IsString()
-  @MinLength(10)
-  contactPhone: string;
-
-  @ApiPropertyOptional({ example: 'ali@example.com', description: 'Contact email' })
-  @IsString()
-  @IsOptional()
-  contactEmail?: string;
+  // Contact fields removed - no longer required
 }
 
