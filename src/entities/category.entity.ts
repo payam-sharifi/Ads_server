@@ -10,6 +10,7 @@ import {
   Index,
 } from 'typeorm';
 import { Ad } from './ad.entity';
+import { MainCategoryType } from '../types/category.types';
 
 /**
  * Category entity for organizing ads
@@ -36,6 +37,15 @@ export class Category {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   icon: string;
+
+  @Column({ 
+    type: 'enum', 
+    enum: MainCategoryType, 
+    nullable: true,
+    name: 'category_type'
+  })
+  @Index()
+  categoryType: MainCategoryType; // The main category type (real_estate, vehicles, services, jobs)
 
   @Column({ type: 'uuid', nullable: true, name: 'parent_id' })
   @Index()

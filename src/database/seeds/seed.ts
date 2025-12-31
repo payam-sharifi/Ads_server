@@ -7,10 +7,12 @@ import { AdminPermission } from '../../entities/admin-permission.entity';
 import { Category } from '../../entities/category.entity';
 import { City } from '../../entities/city.entity';
 import { Ad, AdStatus, AdCondition } from '../../entities/ad.entity';
+import { Bookmark } from '../../entities/bookmark.entity';
 import { Image } from '../../entities/image.entity';
 import { Message } from '../../entities/message.entity';
 import { Report } from '../../entities/report.entity';
 import { AuditLog } from '../../entities/audit-log.entity';
+import { MainCategoryType, CATEGORY_DEFINITIONS } from '../../types/category.types';
 
 /**
  * Database Seed Script
@@ -36,7 +38,7 @@ async function seed() {
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'classified_ads',
-    entities: [User, Role, Permission, AdminPermission, Category, City, Ad, Image, Message, Report, AuditLog],
+    entities: [User, Role, Permission, AdminPermission, Category, City, Ad, Bookmark, Image, Message, Report, AuditLog],
     synchronize: false,
   });
 
@@ -208,20 +210,19 @@ async function seed() {
       users.push(await userRepository.save(user));
     }
 
-    // Create Categories
+    // Create Categories (Only the 4 main categories)
     console.log('📂 Creating categories...');
-    const categories = [
-      { name: { en: 'Vehicles', de: 'Fahrzeuge' }, icon: '🚗' },
-      { name: { en: 'Electronics', de: 'Elektronik' }, icon: '📱' },
-      { name: { en: 'Furniture', de: 'Möbel' }, icon: '🪑' },
-      { name: { en: 'Clothing', de: 'Kleidung' }, icon: '👕' },
-      { name: { en: 'Services', de: 'Dienstleistungen' }, icon: '🔧' },
-      { name: { en: 'Real Estate', de: 'Immobilien' }, icon: '🏠' },
-    ];
-
     const savedCategories = [];
-    for (const cat of categories) {
-      const category = categoryRepository.create(cat);
+    for (const catDef of CATEGORY_DEFINITIONS) {
+      const category = categoryRepository.create({
+        name: { 
+          fa: catDef.name.fa,
+          de: catDef.name.de,
+        },
+        icon: catDef.icon,
+        categoryType: catDef.id,
+        parentId: null, // Main categories have no parent
+      });
       savedCategories.push(await categoryRepository.save(category));
     }
 
@@ -244,64 +245,64 @@ async function seed() {
       savedCities.push(await cityRepository.save(cityEntity));
     }
 
-    // Create Ads
+    // Create Ads (only for categories that exist)
     console.log('📢 Creating ads...');
-    const ads = [
-      {
+    const vehiclesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.VEHICLES);
+    const servicesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.SERVICES);
+    
+    const ads = [];
+    
+    // Vehicle ad
+    if (vehiclesCategory) {
+      ads.push({
         title: 'BMW 320d 2020',
         description: 'Excellent condition, low mileage, full service history',
         price: 25000,
-        categoryId: savedCategories[0].id,
+        categoryId: vehiclesCategory.id,
         cityId: savedCities[0].id,
         userId: users[0].id,
         status: AdStatus.APPROVED,
         condition: AdCondition.USED,
         views: 150,
-      },
-      {
-        title: 'iPhone 14 Pro Max',
-        description: 'Brand new, sealed box, 256GB',
-        price: 1200,
-        categoryId: savedCategories[1].id,
-        cityId: savedCities[1].id,
-        userId: users[1].id,
-        status: AdStatus.PENDING_APPROVAL,
-        condition: AdCondition.NEW,
-        views: 0,
-      },
-      {
-        title: 'Modern Sofa Set',
-        description: '3-seater sofa in excellent condition',
-        price: 500,
-        categoryId: savedCategories[2].id,
-        cityId: savedCities[2].id,
-        userId: users[2].id,
-        status: AdStatus.REJECTED,
-        rejectionReason: 'Inappropriate content',
-        views: 0,
-      },
-      {
-        title: 'Designer Jacket',
-        description: 'Barely used, like new condition',
-        price: 150,
-        categoryId: savedCategories[3].id,
-        cityId: savedCities[0].id,
-        userId: users[3].id,
-        status: AdStatus.DRAFT,
-        condition: AdCondition.LIKE_NEW,
-        views: 0,
-      },
-      {
+        metadata: {
+          vehicleType: 'car',
+          brand: 'BMW',
+          model: '320d',
+          year: 2020,
+          mileage: 50000,
+          fuelType: 'diesel',
+          transmission: 'automatic',
+          condition: 'used',
+          damageStatus: 'none',
+          postalCode: '10115',
+          contactName: 'علی محمدی',
+          contactPhone: '+49123456789',
+        },
+      });
+    }
+    
+    // Service ad
+    if (servicesCategory) {
+      ads.push({
         title: 'Plumbing Services',
         description: 'Professional plumbing services available',
-        price: 0,
-        categoryId: savedCategories[4].id,
+        price: 25,
+        categoryId: servicesCategory.id,
         cityId: savedCities[3].id,
         userId: users[4].id,
         status: AdStatus.APPROVED,
         views: 75,
-      },
-    ];
+        metadata: {
+          serviceCategory: 'home_services',
+          pricingType: 'hourly',
+          price: 25,
+          serviceRadius: 50,
+          experienceYears: 10,
+          contactName: 'رضا کریمی',
+          contactPhone: '+49123456790',
+        },
+      });
+    }
 
     const savedAds = [];
     for (const ad of ads) {

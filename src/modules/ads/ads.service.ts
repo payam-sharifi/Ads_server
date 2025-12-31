@@ -4,6 +4,7 @@ import { Repository, Like, Between, IsNull } from 'typeorm';
 import { Ad, AdStatus } from '../../entities/ad.entity';
 import { User } from '../../entities/user.entity';
 import { Bookmark } from '../../entities/bookmark.entity';
+import { Category } from '../../entities/category.entity';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { UpdateAdDto } from './dto/update-ad.dto';
 import { FilterAdsDto } from './dto/filter-ads.dto';
@@ -14,6 +15,7 @@ import { AuditAction } from '../../entities/audit-log.entity';
 import { RoleType } from '../../entities/role.entity';
 import { MessagesService } from '../messages/messages.service';
 import { PermissionsService } from '../permissions/permissions.service';
+import { CategoryValidatorService } from './validators/category-validator.service';
 
 /**
  * Ads Service
@@ -31,7 +33,10 @@ export class AdsService {
     private adsRepository: Repository<Ad>,
     @InjectRepository(Bookmark)
     private bookmarksRepository: Repository<Bookmark>,
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
     private auditLogService: AuditLogService,
+    private categoryValidatorService: CategoryValidatorService,
     @Inject(forwardRef(() => MessagesService))
     private messagesService: MessagesService,
     @Inject(forwardRef(() => PermissionsService))
@@ -171,12 +176,72 @@ export class AdsService {
   /**
    * Create a new ad
    * Status defaults to PENDING_APPROVAL
+   * Validates category-specific fields based on category type
    */
   async create(createAdDto: CreateAdDto, userId: string): Promise<Ad> {
+    // Verify category exists and get its type
+    const category = await this.categoriesRepository.findOne({
+      where: { id: createAdDto.categoryId, deletedAt: null },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${createAdDto.categoryId} not found`);
+    }
+
+    if (!category.categoryType) {
+      throw new BadRequestException('Category must be one of the 4 main categories (real_estate, vehicles, services, jobs)');
+    }
+
+    // Validate category-specific fields
+    const metadata = await this.categoryValidatorService.validateCategoryFields(
+      createAdDto,
+      category.categoryType,
+    );
+
+    // Extract contact info from metadata for backward compatibility
+    const contactInfo = {
+      contactName: metadata.contactName,
+      contactPhone: metadata.contactPhone,
+      contactEmail: metadata.contactEmail,
+    };
+
+    // For jobs, use jobTitle as title if provided
+    let title = createAdDto.title;
+    if (category.categoryType === 'jobs' && metadata.jobTitle) {
+      title = metadata.jobTitle;
+    }
+
+    // For jobs, use jobDescription as description if provided
+    let description = createAdDto.description;
+    if (category.categoryType === 'jobs' && metadata.jobDescription) {
+      description = metadata.jobDescription;
+    }
+
+    // Determine price based on category
+    let price = createAdDto.price || 0;
+    if (category.categoryType === 'real_estate') {
+      price = metadata.price || metadata.coldRent || 0;
+    } else if (category.categoryType === 'vehicles') {
+      price = createAdDto.price || 0;
+    } else if (category.categoryType === 'services') {
+      price = metadata.price || 0;
+    } else if (category.categoryType === 'jobs') {
+      price = 0; // Jobs don't have price
+    }
+
+    // Create ad with validated metadata
     const ad = this.adsRepository.create({
-      ...createAdDto,
+      title,
+      description,
+      price,
+      categoryId: createAdDto.categoryId,
+      cityId: createAdDto.cityId,
       userId,
-      status: AdStatus.PENDING_APPROVAL, // Always pending approval on creation
+      status: AdStatus.PENDING_APPROVAL,
+      condition: createAdDto.condition,
+      metadata,
+      showEmail: createAdDto.showEmail || false,
+      showPhone: createAdDto.showPhone || false,
     });
 
     return this.adsRepository.save(ad);
