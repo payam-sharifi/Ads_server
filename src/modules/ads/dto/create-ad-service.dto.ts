@@ -63,20 +63,6 @@ export class CreateServiceAdDto {
   @IsOptional()
   certificates?: string;
 
-  // Contact
-  @ApiProperty({ example: 'علی محمدی', description: 'Contact name' })
-  @IsString()
-  @MinLength(2)
-  contactName: string;
-
-  @ApiProperty({ example: '+49123456789', description: 'Contact phone' })
-  @IsString()
-  @MinLength(10)
-  contactPhone: string;
-
-  @ApiPropertyOptional({ example: 'ali@example.com', description: 'Contact email' })
-  @IsString()
-  @IsOptional()
-  contactEmail?: string;
+  // Contact fields removed - no longer required
 }
 

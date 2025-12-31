@@ -198,13 +198,6 @@ export class AdsService {
       category.categoryType,
     );
 
-    // Extract contact info from metadata for backward compatibility
-    const contactInfo = {
-      contactName: metadata.contactName,
-      contactPhone: metadata.contactPhone,
-      contactEmail: metadata.contactEmail,
-    };
-
     // For jobs, use jobTitle as title if provided
     let title = createAdDto.title;
     if (category.categoryType === 'jobs' && metadata.jobTitle) {

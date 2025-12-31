@@ -83,14 +83,6 @@ export class CreateJobAdDto {
   @MinLength(2)
   companyName: string;
 
-  @ApiProperty({ example: 'علی محمدی', description: 'Contact name' })
-  @IsString()
-  @MinLength(2)
-  contactName: string;
-
-  @ApiProperty({ example: 'jobs@company.com', description: 'Contact email' })
-  @IsString()
-  @MinLength(5)
-  contactEmail: string;
+  // Contact fields removed - no longer required (companyName is still required)
 }
 

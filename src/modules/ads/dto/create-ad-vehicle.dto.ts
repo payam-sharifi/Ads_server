@@ -89,20 +89,12 @@ export class CreateVehicleAdDto {
   inspectionValidUntil?: string;
 
   // Location
-  @ApiProperty({ example: '10115', description: 'Postal code' })
+  @ApiPropertyOptional({ example: '10115', description: 'Postal code' })
   @IsString()
   @MinLength(5)
-  postalCode: string;
+  @IsOptional()
+  postalCode?: string;
 
-  // Contact
-  @ApiProperty({ example: 'علی محمدی', description: 'Contact name' })
-  @IsString()
-  @MinLength(2)
-  contactName: string;
-
-  @ApiProperty({ example: '+49123456789', description: 'Contact phone' })
-  @IsString()
-  @MinLength(10)
-  contactPhone: string;
+  // Contact (removed - no longer required)
 }
 
