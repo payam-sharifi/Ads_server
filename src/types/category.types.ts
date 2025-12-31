@@ -255,7 +255,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   },
   {
     id: MainCategoryType.JOBS,
-    name: { fa: 'شغل', de: 'Jobs' },
+    name: { fa: 'استخدام و کاریابی', de: 'Jobs' },
     icon: '💼',
     metadataSchema: 'jobs',
   },
