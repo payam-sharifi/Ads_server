@@ -173,6 +173,113 @@ export class MessagesService {
   }
 
   /**
+   * Get conversations grouped by ad and other user
+   * Returns latest message for each conversation with unread count
+   */
+  async getConversations(userId: string): Promise<Array<{
+    adId: string;
+    ad: {
+      id: string;
+      title: string;
+      images?: Array<{ url: string }>;
+    };
+    otherUser: {
+      id: string;
+      name: string;
+      email: string;
+    };
+    lastMessage: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      isRead: boolean;
+      senderId: string;
+    };
+    unreadCount: number;
+  }>> {
+    // Get all messages where user is sender or receiver
+    const allMessages = await this.messagesRepository.find({
+      where: [
+        { senderId: userId, deletedAt: null },
+        { receiverId: userId, deletedAt: null },
+      ],
+      relations: ['sender', 'receiver', 'ad', 'ad.images'],
+      order: { createdAt: 'DESC' },
+    });
+
+    // Group by adId and otherUserId
+    const conversationMap = new Map<string, {
+      adId: string;
+      ad: any;
+      otherUser: any;
+      messages: Message[];
+    }>();
+
+    for (const message of allMessages) {
+      // Determine the other user in the conversation
+      const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
+      const otherUser = message.senderId === userId ? message.receiver : message.sender;
+      
+      // Create unique key for conversation: adId + otherUserId
+      const conversationKey = `${message.adId}_${otherUserId}`;
+
+      if (!conversationMap.has(conversationKey)) {
+        conversationMap.set(conversationKey, {
+          adId: message.adId,
+          ad: message.ad,
+          otherUser: otherUser,
+          messages: [],
+        });
+      }
+
+      conversationMap.get(conversationKey)!.messages.push(message);
+    }
+
+    // Build result array with last message and unread count
+    const conversations = Array.from(conversationMap.values()).map((conv) => {
+      // Sort messages by createdAt DESC to get latest
+      const sortedMessages = conv.messages.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      const lastMessage = sortedMessages[0];
+
+      // Count unread messages where current user is receiver
+      const unreadCount = conv.messages.filter(
+        (msg) => msg.receiverId === userId && !msg.isRead
+      ).length;
+
+      return {
+        adId: conv.adId,
+        ad: {
+          id: conv.ad?.id || '',
+          title: conv.ad?.title || '',
+          images: conv.ad?.images?.slice(0, 1) || [],
+        },
+        otherUser: {
+          id: conv.otherUser?.id || '',
+          name: conv.otherUser?.name || 'Unknown',
+          email: conv.otherUser?.email || '',
+        },
+        lastMessage: {
+          id: lastMessage.id,
+          content: lastMessage.messageText || '',
+          createdAt: lastMessage.createdAt,
+          isRead: lastMessage.isRead,
+          senderId: lastMessage.senderId,
+        },
+        unreadCount,
+      };
+    });
+
+    // Sort by last message date DESC (newest first)
+    conversations.sort((a, b) => 
+      new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime()
+    );
+
+    return conversations;
+  }
+
+  /**
    * Mark message as read
    */
   async markAsRead(id: string, userId: string): Promise<Message> {
