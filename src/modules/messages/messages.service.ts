@@ -29,7 +29,8 @@ export class MessagesService {
 
   /**
    * Send a message about an ad
-   * Receiver is automatically set to the ad owner
+   * Receiver is automatically set to the ad owner (for buyers)
+   * For ad owners replying, receiver is set to the original message sender
    */
   async create(createMessageDto: CreateMessageDto, senderId: string): Promise<Message> {
     // Verify ad exists
@@ -42,15 +43,42 @@ export class MessagesService {
       throw new NotFoundException(`Ad with ID ${createMessageDto.adId} not found`);
     }
 
-    // Prevent sending message to yourself
+    let receiverId: string;
+
+    // If sender is the ad owner, find the other participant in the conversation
     if (ad.userId === senderId) {
+      // Find the most recent message for this ad to get the other participant
+      const recentMessage = await this.messagesRepository.findOne({
+        where: [
+          { adId: createMessageDto.adId, senderId, deletedAt: null },
+          { adId: createMessageDto.adId, receiverId: senderId, deletedAt: null },
+        ],
+        order: { createdAt: 'DESC' },
+      });
+
+      if (!recentMessage) {
+        throw new ForbiddenException('No conversation found to reply to');
+      }
+
+      // Determine the receiver: if recent message was sent by ad owner, reply to its receiver
+      // Otherwise, reply to the sender of the recent message
+      receiverId = recentMessage.senderId === senderId 
+        ? recentMessage.receiverId 
+        : recentMessage.senderId;
+    } else {
+      // For buyers, receiver is always the ad owner
+      receiverId = ad.userId;
+    }
+
+    // Prevent sending message to yourself
+    if (receiverId === senderId) {
       throw new ForbiddenException('You cannot send a message to yourself');
     }
 
     const message = this.messagesRepository.create({
       ...createMessageDto,
       senderId,
-      receiverId: ad.userId,
+      receiverId,
     });
 
     const savedMessage = await this.messagesRepository.save(message);
@@ -78,7 +106,7 @@ export class MessagesService {
         { adId, receiverId: userId, deletedAt: null },
       ],
       relations: ['sender', 'receiver', 'ad'],
-      order: { createdAt: 'DESC' },
+      order: { createdAt: 'ASC' }, // Oldest first, newest at bottom
     });
     return messages;
   }
@@ -160,6 +188,47 @@ export class MessagesService {
   }
 
   /**
+   * Mark all unread messages for an ad as read
+   * Both ad owner and message participants can mark their own messages as read
+   */
+  async markAllAsReadForAd(adId: string, userId: string): Promise<{ count: number }> {
+    // Verify ad exists
+    const ad = await this.adsRepository.findOne({
+      where: { id: adId, deletedAt: null },
+    });
+
+    if (!ad) {
+      throw new NotFoundException(`Ad with ID ${adId} not found`);
+    }
+
+    // Check if user is ad owner or has messages in this conversation
+    const userMessages = await this.messagesRepository.findOne({
+      where: [
+        { adId, senderId: userId, deletedAt: null },
+        { adId, receiverId: userId, deletedAt: null },
+      ],
+    });
+
+    if (ad.userId !== userId && !userMessages) {
+      throw new ForbiddenException('You can only mark messages as read for ads you own or participate in');
+    }
+
+    // Update all unread messages for this ad where user is the receiver
+    // Use query builder to handle null check properly
+    const result = await this.messagesRepository
+      .createQueryBuilder()
+      .update(Message)
+      .set({ isRead: true })
+      .where('adId = :adId', { adId })
+      .andWhere('receiverId = :userId', { userId })
+      .andWhere('isRead = :isRead', { isRead: false })
+      .andWhere('(deletedAt IS NULL OR deletedAt = :nullValue)', { nullValue: null })
+      .execute();
+
+    return { count: result.affected || 0 };
+  }
+
+  /**
    * Delete message (soft delete)
    * Only sender or receiver can delete
    */
@@ -182,6 +251,35 @@ export class MessagesService {
   async getUnreadCount(userId: string): Promise<number> {
     return this.messagesRepository.count({
       where: {
+        receiverId: userId,
+        isRead: false,
+        deletedAt: null,
+      },
+    });
+  }
+
+  /**
+   * Get count of unread messages for a specific ad
+   * Only counts messages where the user is the receiver (ad owner)
+   */
+  async getUnreadCountForAd(adId: string, userId: string): Promise<number> {
+    // Verify ad exists and user is the owner
+    const ad = await this.adsRepository.findOne({
+      where: { id: adId, deletedAt: null },
+    });
+
+    if (!ad) {
+      throw new NotFoundException(`Ad with ID ${adId} not found`);
+    }
+
+    // Only ad owner can see unread count for their ad
+    if (ad.userId !== userId) {
+      throw new ForbiddenException('You can only view unread count for your own ads');
+    }
+
+    return this.messagesRepository.count({
+      where: {
+        adId,
         receiverId: userId,
         isRead: false,
         deletedAt: null,

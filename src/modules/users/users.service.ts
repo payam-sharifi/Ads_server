@@ -33,23 +33,12 @@ export class UsersService {
    * Find user by ID with role
    */
   async findOne(id: string): Promise<User> {
-    // #region agent log
-    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'users.service.ts:findOne',message:'Finding user by ID',data:{userId:id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     const user = await this.usersRepository.findOne({
       where: { id, deletedAt: null },
       relations: ['role'],
     });
 
-    // #region agent log
-    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'users.service.ts:findOne',message:'User query result',data:{userFound:!!user,userId:user?.id,userEmail:user?.email,deletedAt:user?.deletedAt},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-
     if (!user) {
-      // #region agent log
-      fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'users.service.ts:findOne',message:'User not found - throwing NotFoundException',data:{userId:id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
