@@ -189,7 +189,7 @@ export class AdsService {
     }
 
     if (!category.categoryType) {
-      throw new BadRequestException('Category must be one of the 4 main categories (real_estate, vehicles, services, jobs)');
+      throw new BadRequestException('Category must be one of the main categories (real_estate, vehicles, services, jobs, misc)');
     }
 
     // Validate category-specific fields
@@ -220,6 +220,8 @@ export class AdsService {
       price = metadata.price || 0;
     } else if (category.categoryType === 'jobs') {
       price = 0; // Jobs don't have price
+    } else if (category.categoryType === 'misc') {
+      price = createAdDto.price || 0; // Misc can have price
     }
 
     // Create ad with validated metadata

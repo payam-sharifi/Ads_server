@@ -193,19 +193,27 @@ async function seed() {
       }),
     ]);
 
-    // Create Regular Users
+    // Create Regular Users (30 users)
     console.log('👤 Creating regular users...');
     const userPassword = await bcrypt.hash('user123', 10);
     const users = [];
-    for (let i = 1; i <= 5; i++) {
+    const userNames = [
+      'علی احمدی', 'محمد رضایی', 'حسن کریمی', 'رضا محمدی', 'امیر حسینی',
+      'سعید نوری', 'مهدی صادقی', 'حسین علیزاده', 'فرهاد رحیمی', 'کامران نجفی',
+      'John Smith', 'Maria Garcia', 'David Brown', 'Sarah Johnson', 'Michael Wilson',
+      'Emma Martinez', 'James Anderson', 'Olivia Taylor', 'William Thomas', 'Sophia Jackson',
+      'Ahmed Al-Mahmoud', 'Fatima Hassan', 'Omar Ibrahim', 'Layla Abdullah', 'Yusuf Ali',
+      'Mehmet Yılmaz', 'Ayşe Demir', 'Can Öztürk', 'Elif Şahin', 'Burak Kaya'
+    ];
+    for (let i = 0; i < 30; i++) {
       const user = userRepository.create({
-        name: `User ${i}`,
-        email: `user${i}@example.com`,
-        phone: `+49 123 45679${i}`,
+        name: userNames[i] || `User ${i + 1}`,
+        email: `user${i + 1}@example.com`,
+        phone: `+49 123 4567${String(i + 1).padStart(2, '0')}`,
         password: userPassword,
         roleId: userRole.id,
-        isBlocked: false,
-        isSuspended: false,
+        isBlocked: i === 5 || i === 12, // Block 2 users for testing
+        isSuspended: i === 8, // Suspend 1 user for testing
       });
       users.push(await userRepository.save(user));
     }
@@ -245,63 +253,178 @@ async function seed() {
       savedCities.push(await cityRepository.save(cityEntity));
     }
 
-    // Create Ads (only for categories that exist)
+    // Create Ads (100 ads across all categories)
     console.log('📢 Creating ads...');
+    const realEstateCategory = savedCategories.find(c => c.categoryType === MainCategoryType.REAL_ESTATE);
     const vehiclesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.VEHICLES);
     const servicesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.SERVICES);
+    const jobsCategory = savedCategories.find(c => c.categoryType === MainCategoryType.JOBS);
+    const miscCategory = savedCategories.find(c => c.categoryType === MainCategoryType.MISC);
     
     const ads = [];
+    const statuses = [AdStatus.APPROVED, AdStatus.APPROVED, AdStatus.APPROVED, AdStatus.PENDING_APPROVAL, AdStatus.REJECTED];
     
-    // Vehicle ad
-    if (vehiclesCategory) {
-      ads.push({
-        title: 'BMW 320d 2020',
-        description: 'Excellent condition, low mileage, full service history',
-        price: 25000,
-        categoryId: vehiclesCategory.id,
-        cityId: savedCities[0].id,
-        userId: users[0].id,
-        status: AdStatus.APPROVED,
-        condition: AdCondition.USED,
-        views: 150,
-        metadata: {
-          vehicleType: 'car',
-          brand: 'BMW',
-          model: '320d',
-          year: 2020,
-          mileage: 50000,
-          fuelType: 'diesel',
-          transmission: 'automatic',
-          condition: 'used',
-          damageStatus: 'none',
-          postalCode: '10115',
-          contactName: 'علی محمدی',
-          contactPhone: '+49123456789',
-        },
-      });
+    // Real Estate Ads (25 ads)
+    if (realEstateCategory) {
+      const propertyTypes = ['apartment', 'house', 'commercial', 'land', 'parking'];
+      const offerTypes = ['rent', 'sale'];
+      for (let i = 0; i < 25; i++) {
+        const offerType = offerTypes[Math.floor(Math.random() * offerTypes.length)];
+        const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
+        ads.push({
+          title: `${propertyType === 'apartment' ? 'آپارتمان' : propertyType === 'house' ? 'خانه' : propertyType} ${i + 1} خوابه`,
+          description: `ملک زیبا و مدرن در موقعیت عالی. ${propertyType === 'apartment' ? 'آپارتمان' : propertyType} با امکانات کامل`,
+          price: offerType === 'sale' ? Math.floor(Math.random() * 500000) + 100000 : 0,
+          categoryId: realEstateCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: statuses[Math.floor(Math.random() * statuses.length)],
+          views: Math.floor(Math.random() * 500),
+          metadata: {
+            offerType,
+            propertyType,
+            livingArea: Math.floor(Math.random() * 200) + 50,
+            rooms: Math.floor(Math.random() * 5) + 1,
+            floor: Math.floor(Math.random() * 10) + 1,
+            totalFloors: Math.floor(Math.random() * 10) + 5,
+            yearBuilt: 2000 + Math.floor(Math.random() * 24),
+            furnished: Math.random() > 0.5,
+            balcony: Math.random() > 0.5,
+            elevator: Math.random() > 0.5,
+            parkingIncluded: Math.random() > 0.5,
+            postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+            ...(offerType === 'rent' ? { coldRent: Math.floor(Math.random() * 2000) + 500 } : {}),
+          },
+        });
+      }
     }
     
-    // Service ad
+    // Vehicle Ads (25 ads)
+    if (vehiclesCategory) {
+      const vehicleTypes = ['car', 'motorcycle', 'van', 'bike'];
+      const brands = ['BMW', 'Mercedes', 'Audi', 'VW', 'Toyota', 'Honda', 'Yamaha', 'Kawasaki'];
+      const models = ['320d', 'C-Class', 'A4', 'Golf', 'Corolla', 'Civic', 'R1', 'Ninja'];
+      for (let i = 0; i < 25; i++) {
+        const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+        const brand = brands[Math.floor(Math.random() * brands.length)];
+        const model = models[Math.floor(Math.random() * models.length)];
+        const year = 2015 + Math.floor(Math.random() * 9);
+        const metadata: any = {
+          vehicleType,
+          brand,
+          model,
+          year,
+          condition: Math.random() > 0.3 ? 'used' : 'new',
+          postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+        };
+        
+        if (vehicleType !== 'bike') {
+          metadata.mileage = Math.floor(Math.random() * 150000) + 10000;
+          metadata.fuelType = ['diesel', 'petrol', 'electric', 'hybrid'][Math.floor(Math.random() * 4)];
+          metadata.transmission = ['automatic', 'manual'][Math.floor(Math.random() * 2)];
+          metadata.damageStatus = ['none', 'minor', 'major'][Math.floor(Math.random() * 3)];
+          metadata.engineSize = vehicleType === 'car' ? Math.floor(Math.random() * 3000) + 1000 : Math.floor(Math.random() * 1000) + 250;
+          if (vehicleType === 'car') {
+            metadata.doors = [2, 4, 5][Math.floor(Math.random() * 3)];
+            metadata.seats = Math.floor(Math.random() * 5) + 4;
+          } else if (vehicleType === 'van') {
+            metadata.loadCapacity = Math.floor(Math.random() * 2000) + 500;
+          }
+        } else {
+          metadata.bikeType = ['normal', 'electric'][Math.floor(Math.random() * 2)];
+          metadata.frameSize = ['S', 'M', 'L', 'XL'][Math.floor(Math.random() * 4)];
+          metadata.gears = Math.floor(Math.random() * 21) + 1;
+          metadata.brakeType = ['rim', 'disc'][Math.floor(Math.random() * 2)];
+          metadata.wheelSize = ['26"', '27.5"', '29"'][Math.floor(Math.random() * 3)];
+        }
+        
+        ads.push({
+          title: `${brand} ${model} ${year}`,
+          description: `${vehicleType === 'car' ? 'خودرو' : vehicleType === 'motorcycle' ? 'موتورسیکلت' : vehicleType === 'van' ? 'ون' : 'دوچرخه'} در وضعیت عالی`,
+          price: vehicleType === 'bike' ? Math.floor(Math.random() * 2000) + 200 : Math.floor(Math.random() * 50000) + 5000,
+          categoryId: vehiclesCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: statuses[Math.floor(Math.random() * statuses.length)],
+          condition: metadata.condition === 'new' ? AdCondition.NEW : AdCondition.USED,
+          views: Math.floor(Math.random() * 500),
+          metadata,
+        });
+      }
+    }
+    
+    // Service Ads (20 ads)
     if (servicesCategory) {
-      ads.push({
-        title: 'Plumbing Services',
-        description: 'Professional plumbing services available',
-        price: 25,
-        categoryId: servicesCategory.id,
-        cityId: savedCities[3].id,
-        userId: users[4].id,
-        status: AdStatus.APPROVED,
-        views: 75,
-        metadata: {
-          serviceCategory: 'home_services',
-          pricingType: 'hourly',
-          price: 25,
-          serviceRadius: 50,
-          experienceYears: 10,
-          contactName: 'رضا کریمی',
-          contactPhone: '+49123456790',
-        },
-      });
+      const serviceCategories = ['home_services', 'automotive', 'beauty', 'education', 'it_services'];
+      const pricingTypes = ['hourly', 'fixed', 'project'];
+      for (let i = 0; i < 20; i++) {
+        const serviceCategory = serviceCategories[Math.floor(Math.random() * serviceCategories.length)];
+        const pricingType = pricingTypes[Math.floor(Math.random() * pricingTypes.length)];
+        ads.push({
+          title: `خدمات ${serviceCategory === 'home_services' ? 'خانه' : serviceCategory === 'automotive' ? 'خودرو' : serviceCategory}`,
+          description: `ارائه خدمات حرفه‌ای و با کیفیت در زمینه ${serviceCategory}`,
+          price: pricingType === 'hourly' ? Math.floor(Math.random() * 100) + 20 : Math.floor(Math.random() * 1000) + 100,
+          categoryId: servicesCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: statuses[Math.floor(Math.random() * statuses.length)],
+          views: Math.floor(Math.random() * 300),
+          metadata: {
+            serviceCategory,
+            pricingType,
+            price: pricingType === 'hourly' ? Math.floor(Math.random() * 100) + 20 : Math.floor(Math.random() * 1000) + 100,
+            serviceRadius: `${Math.floor(Math.random() * 50) + 10} km`,
+            experienceYears: Math.floor(Math.random() * 20) + 1,
+            postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+          },
+        });
+      }
+    }
+    
+    // Job Ads (15 ads)
+    if (jobsCategory) {
+      const jobTitles = ['برنامه‌نویس', 'طراح گرافیک', 'حسابدار', 'مهندس', 'معلم', 'پرستار', 'آشپز', 'منشی'];
+      const employmentTypes = ['full_time', 'part_time', 'contract', 'internship'];
+      const experienceLevels = ['junior', 'mid', 'senior'];
+      for (let i = 0; i < 15; i++) {
+        const jobTitle = jobTitles[Math.floor(Math.random() * jobTitles.length)];
+        ads.push({
+          title: `فرصت شغلی: ${jobTitle}`,
+          description: `ما به دنبال ${jobTitle} با تجربه و متعهد هستیم. حقوق و مزایای رقابتی`,
+          price: 0,
+          categoryId: jobsCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: statuses[Math.floor(Math.random() * statuses.length)],
+          views: Math.floor(Math.random() * 200),
+          metadata: {
+            jobTitle,
+            employmentType: employmentTypes[Math.floor(Math.random() * employmentTypes.length)],
+            experienceLevel: experienceLevels[Math.floor(Math.random() * experienceLevels.length)],
+            salary: Math.floor(Math.random() * 50000) + 30000,
+            postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+          },
+        });
+      }
+    }
+    
+    // Misc Ads (15 ads)
+    if (miscCategory) {
+      const miscTitles = ['مبلمان دست دوم', 'کتاب', 'اسباب بازی', 'لوازم خانگی', 'گوشی موبایل', 'لپ تاپ', 'دوربین', 'ساعت'];
+      for (let i = 0; i < 15; i++) {
+        const title = miscTitles[Math.floor(Math.random() * miscTitles.length)];
+        ads.push({
+          title: `${title} ${i + 1}`,
+          description: `${title} در وضعیت عالی و قیمت مناسب`,
+          price: Math.floor(Math.random() * 1000) + 50,
+          categoryId: miscCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: statuses[Math.floor(Math.random() * statuses.length)],
+          views: Math.floor(Math.random() * 150),
+          metadata: {},
+        });
+      }
     }
 
     const savedAds = [];
@@ -311,13 +434,16 @@ async function seed() {
     }
 
     console.log('✅ Seed completed successfully!');
+    console.log(`\n📊 Summary:`);
+    console.log(`- ${users.length} regular users created`);
+    console.log(`- ${savedCategories.length} categories created`);
+    console.log(`- ${savedCities.length} cities created`);
+    console.log(`- ${savedAds.length} ads created`);
     console.log('\n📋 Login Credentials:');
     console.log('Super Admin: superadmin@example.com / superadmin123');
     console.log('Admin 1: admin1@example.com / admin123');
     console.log('Admin 2: admin2@example.com / admin123');
-    console.log('User 1: user1@example.com / user123');
-    console.log('User 2: user2@example.com / user123');
-    console.log('... (user3-5 same password)');
+    console.log('Users: user1@example.com to user30@example.com / user123');
   } catch (error) {
     console.error('❌ Error seeding database:', error);
     throw error;

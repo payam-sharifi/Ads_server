@@ -41,6 +41,11 @@ export class CategoryValidatorService {
         metadata = this.extractJobMetadata(validatedDto);
         break;
 
+      case MainCategoryType.MISC:
+        // Misc category only needs title and description, no additional validation needed
+        metadata = {};
+        break;
+
       default:
         throw new BadRequestException(`Invalid category type: ${categoryType}`);
     }
@@ -211,9 +216,6 @@ export class CategoryValidatorService {
       elevator: dto.elevator,
       parkingIncluded: dto.parkingIncluded,
       cellar: dto.cellar,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
-      contactEmail: dto.contactEmail,
     };
   }
 
@@ -234,8 +236,6 @@ export class CategoryValidatorService {
       damageStatus: dto.damageStatus,
       inspectionValidUntil: dto.inspectionValidUntil,
       postalCode: dto.postalCode,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
     };
   }
 
@@ -250,9 +250,6 @@ export class CategoryValidatorService {
       serviceRadius: dto.serviceRadius,
       experienceYears: dto.experienceYears,
       certificates: dto.certificates,
-      contactName: dto.contactName,
-      contactPhone: dto.contactPhone,
-      contactEmail: dto.contactEmail,
     };
   }
 
@@ -273,8 +270,6 @@ export class CategoryValidatorService {
       salaryTo: dto.salaryTo,
       salaryType: dto.salaryType,
       companyName: dto.companyName,
-      contactName: dto.contactName,
-      contactEmail: dto.contactEmail,
     };
   }
 }

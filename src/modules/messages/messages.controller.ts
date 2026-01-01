@@ -93,7 +93,13 @@ export class MessagesController {
   @ApiOperation({ summary: 'Get unread messages count' })
   @ApiResponse({ status: 200, description: 'Unread count retrieved successfully' })
   async getUnreadCount(@CurrentUser() user: User) {
+    // #region agent log
+    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'messages.controller.ts:getUnreadCount',message:'Getting unread count',data:{userId:user?.id,userEmail:user?.email,userExists:!!user},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     const count = await this.messagesService.getUnreadCount(user.id);
+    // #region agent log
+    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'messages.controller.ts:getUnreadCount',message:'Unread count retrieved',data:{userId:user.id,count},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     return { count };
   }
 
