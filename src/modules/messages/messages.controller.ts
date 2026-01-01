@@ -93,14 +93,33 @@ export class MessagesController {
   @ApiOperation({ summary: 'Get unread messages count' })
   @ApiResponse({ status: 200, description: 'Unread count retrieved successfully' })
   async getUnreadCount(@CurrentUser() user: User) {
-    // #region agent log
-    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'messages.controller.ts:getUnreadCount',message:'Getting unread count',data:{userId:user?.id,userEmail:user?.email,userExists:!!user},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     const count = await this.messagesService.getUnreadCount(user.id);
-    // #region agent log
-    fetch('http://127.0.0.1:7245/ingest/8e3d4fb4-043c-450e-b118-fed88d4cad9f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'messages.controller.ts:getUnreadCount',message:'Unread count retrieved',data:{userId:user.id,count},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     return { count };
+  }
+
+  /**
+   * Get unread messages count for a specific ad
+   * Must be before GET(':id') to avoid route conflicts
+   */
+  @Get('unread-count/ad/:adId')
+  @ApiOperation({ summary: 'Get unread messages count for a specific ad' })
+  @ApiResponse({ status: 200, description: 'Unread count for ad retrieved successfully' })
+  async getUnreadCountForAd(@Param('adId', ParseUUIDPipe) adId: string, @CurrentUser() user: User) {
+    const count = await this.messagesService.getUnreadCountForAd(adId, user.id);
+    return { count };
+  }
+
+  /**
+   * Mark all messages as read for an ad
+   * Must be before GET(':id') to avoid route conflicts
+   */
+  @Patch('ad/:adId/read-all')
+  @ApiOperation({ summary: 'Mark all messages as read for an ad' })
+  @ApiResponse({ status: 200, description: 'Messages marked as read' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Ad not found' })
+  async markAllAsReadForAd(@Param('adId', ParseUUIDPipe) adId: string, @CurrentUser() user: User) {
+    return this.messagesService.markAllAsReadForAd(adId, user.id);
   }
 
   /**
