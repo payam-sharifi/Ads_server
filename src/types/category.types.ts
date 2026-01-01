@@ -14,6 +14,7 @@ export enum MainCategoryType {
   VEHICLES = 'vehicles',
   SERVICES = 'services',
   JOBS = 'jobs',
+  MISC = 'misc',
 }
 
 // ============================================
@@ -231,7 +232,7 @@ export interface CategoryDefinition {
     de: string;
   };
   icon: string;
-  metadataSchema: 'real_estate' | 'vehicles' | 'services' | 'jobs';
+  metadataSchema: 'real_estate' | 'vehicles' | 'services' | 'jobs' | 'misc';
 }
 
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
@@ -258,6 +259,12 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     name: { fa: 'استخدام و کاریابی', de: 'Jobs' },
     icon: '💼',
     metadataSchema: 'jobs',
+  },
+  {
+    id: MainCategoryType.MISC,
+    name: { fa: 'متفرقه', de: 'Sonstiges' },
+    icon: '📦',
+    metadataSchema: 'misc',
   },
 ];
 
