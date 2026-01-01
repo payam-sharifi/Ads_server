@@ -86,6 +86,17 @@ export class MessagesController {
   }
 
   /**
+   * Get conversations grouped by ad and user
+   * Returns latest message for each conversation
+   */
+  @Get('conversations')
+  @ApiOperation({ summary: 'Get conversations grouped by ad and user' })
+  @ApiResponse({ status: 200, description: 'Conversations retrieved successfully' })
+  getConversations(@CurrentUser() user: User) {
+    return this.messagesService.getConversations(user.id);
+  }
+
+  /**
    * Get unread messages count
    * Must be before GET(':id') to avoid route conflicts
    */
