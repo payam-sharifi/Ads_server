@@ -243,7 +243,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   },
   {
     id: MainCategoryType.VEHICLES,
-    name: { fa: 'خودرو', de: 'Auto, Rad & Boot' },
+    name: { fa: 'وسایل نقلیه', de: 'Auto, Rad & Boot' },
     icon: '🚗',
     metadataSchema: 'vehicles',
   },
