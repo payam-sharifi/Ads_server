@@ -27,6 +27,6 @@ jobs:
             npm install
             npm run build
             pm2 delete Ads_server || true
-            pm2 start /Ads/Ads_server/dist/src/main.js --name "Ads_server" --watch -- --port 5001
+            pm2 start /Ads/Ads_server/dist/main.js --name "Ads_server" --watch -- --port 5001
             pm2 save
             pm2 startup

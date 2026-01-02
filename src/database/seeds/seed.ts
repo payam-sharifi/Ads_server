@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../entities/user.entity';
 import { Role, RoleType } from '../../entities/role.entity';
@@ -13,6 +14,9 @@ import { Message } from '../../entities/message.entity';
 import { Report } from '../../entities/report.entity';
 import { AuditLog } from '../../entities/audit-log.entity';
 import { MainCategoryType, CATEGORY_DEFINITIONS } from '../../types/category.types';
+
+// Load environment variables from .env file
+dotenv.config();
 
 /**
  * Database Seed Script
