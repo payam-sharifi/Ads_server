@@ -68,13 +68,16 @@ async function seed() {
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
       AND table_type = 'BASE TABLE'
+      AND table_name != 'migrations'
     `);
     
     if (tables.length === 0) {
-      console.error('❌ No tables found in database!');
-      console.error('📋 Please run migrations first:');
-      console.error('   npm run migration:run');
-      throw new Error('Database schema not initialized. Please run migrations first.');
+      console.log('📋 No tables found in database!');
+      console.log('⚠️  Creating database schema using synchronize (first-time setup only)...');
+      console.log('⚠️  Note: For production, it is recommended to use migrations instead.');
+      await dataSource.synchronize();
+      console.log('✅ Database schema created successfully!');
+      console.log('💡 Tip: Run "npm run migration:generate -- -n InitialMigration" to create a migration file for future deployments.');
     }
     
     // Clear existing data
