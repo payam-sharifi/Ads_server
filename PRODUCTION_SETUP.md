@@ -30,27 +30,48 @@ UPLOAD_DEST=./public/uploads
 CORS_ORIGIN=https://your-domain.com
 ```
 
-### 3. ایجاد Migration اولیه (فقط یک بار)
-اگر migration اولیه وجود ندارد:
-```bash
-npm run migration:generate -- -n InitialMigration
-```
+### 3. راه‌اندازی اولیه دیتابیس
 
-این دستور یک فایل migration در `src/database/migrations/` ایجاد می‌کند.
-
-### 4. اجرای Migration
-```bash
-npm run migration:run
-```
-
-این دستور تمام migration‌های pending را اجرا می‌کند و جدول‌های دیتابیس را می‌سازد.
-
-### 5. Seed کردن دیتابیس (اختیاری)
+**گزینه A: استفاده از Seed Script (برای setup اولیه)**
 ```bash
 npm run seed
 ```
 
-این دستور دیتابیس را با داده‌های اولیه پر می‌کند.
+این دستور به صورت خودکار:
+- اگر جدول‌ها وجود نداشته باشند، schema را می‌سازد (با synchronize)
+- سپس داده‌های اولیه را اضافه می‌کند
+
+**گزینه B: استفاده از Migration (توصیه می‌شود)**
+
+اگر می‌خواهید از migration استفاده کنید:
+
+1. **ایجاد Migration اولیه:**
+   ```bash
+   npm run migration:generate -- -n InitialMigration
+   ```
+   این دستور یک فایل migration در `src/database/migrations/` ایجاد می‌کند.
+
+2. **اجرای Migration:**
+   ```bash
+   npm run migration:run
+   ```
+   این دستور تمام migration‌های pending را اجرا می‌کند و جدول‌های دیتابیس را می‌سازد.
+
+3. **Seed کردن دیتابیس:**
+   ```bash
+   npm run seed
+   ```
+
+### 4. ایجاد Migration بعد از Setup اولیه
+
+بعد از setup اولیه با seed script، برای deployment‌های بعدی بهتر است migration فایل بسازید:
+
+```bash
+# بعد از اولین setup با seed
+npm run migration:generate -- -n InitialMigration
+```
+
+این migration فایل را commit کنید تا در deployment‌های بعدی استفاده شود.
 
 ### 6. Build کردن اپلیکیشن
 ```bash
