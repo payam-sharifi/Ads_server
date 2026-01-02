@@ -61,19 +61,48 @@ async function seed() {
     const messageRepository = dataSource.getRepository(Message);
     const reportRepository = dataSource.getRepository(Report);
     const auditLogRepository = dataSource.getRepository(AuditLog);
+    
+    // Check if tables exist
+    const tables = await dataSource.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+    `);
+    
+    if (tables.length === 0) {
+      console.error('❌ No tables found in database!');
+      console.error('📋 Please run migrations first:');
+      console.error('   npm run migration:run');
+      throw new Error('Database schema not initialized. Please run migrations first.');
+    }
+    
     // Clear existing data
     console.log('🗑️  Clearing existing data...');
-    await dataSource.query('TRUNCATE TABLE "reports" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "audit_logs" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "messages" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "ads" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "images" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "admin_permissions" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "permissions" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "users" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "categories" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "cities" CASCADE');
-    await dataSource.query('TRUNCATE TABLE "roles" CASCADE');
+    const truncateQueries = [
+      'TRUNCATE TABLE "reports" CASCADE',
+      'TRUNCATE TABLE "audit_logs" CASCADE',
+      'TRUNCATE TABLE "messages" CASCADE',
+      'TRUNCATE TABLE "ads" CASCADE',
+      'TRUNCATE TABLE "images" CASCADE',
+      'TRUNCATE TABLE "admin_permissions" CASCADE',
+      'TRUNCATE TABLE "permissions" CASCADE',
+      'TRUNCATE TABLE "users" CASCADE',
+      'TRUNCATE TABLE "categories" CASCADE',
+      'TRUNCATE TABLE "cities" CASCADE',
+      'TRUNCATE TABLE "roles" CASCADE',
+    ];
+    
+    for (const query of truncateQueries) {
+      try {
+        await dataSource.query(query);
+      } catch (error) {
+        // Ignore errors if table doesn't exist
+        if (error.code !== '42P01') {
+          throw error;
+        }
+      }
+    }
     
 
     // Create Roles
