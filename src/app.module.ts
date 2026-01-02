@@ -68,6 +68,11 @@ import { Bookmark } from './entities/bookmark.entity';
         AuditLog,
         Bookmark,
       ],
+      migrations: [
+        process.env.NODE_ENV === 'production'
+          ? 'dist/database/migrations/*.js'
+          : 'src/database/migrations/*.ts'
+      ],
       synchronize: process.env.NODE_ENV !== 'production', // Auto-sync in dev mode
       logging: process.env.NODE_ENV === 'development',
     }),
