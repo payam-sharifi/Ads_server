@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -78,8 +78,10 @@ import { Bookmark } from './entities/bookmark.entity';
     }),
 
     // Serve static files (uploaded images)
+    // Use process.cwd() to get the project root, then resolve to public/uploads
+    // This works in both development and production
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public', 'uploads'),
+      rootPath: resolve(process.env.UPLOAD_DEST || './public/uploads'),
       serveRoot: '/uploads',
     }),
 
