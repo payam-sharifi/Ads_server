@@ -24,8 +24,8 @@
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/typeorm.config.ts",
     "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/typeorm.config.ts",
     "seed": "ts-node -r dotenv/config src/database/seeds/seed.ts",
-    "setup:prod": "npm run migration:run && npm run seed"
-    
+    "setup:prod": "npm run migration:run && npm run seed",
+    "verify-jwt-secret": "ts-node -r dotenv/config scripts/verify-jwt-secret.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

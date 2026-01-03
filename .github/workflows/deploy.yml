@@ -26,7 +26,11 @@ jobs:
             git pull 
             npm install
             npm run build
+            # Create logs directory if it doesn't exist
+            mkdir -p logs
+            # Delete existing PM2 process
             pm2 delete Ads_server || true
-            pm2 start /Ads/Ads_server/dist/main.js --name "Ads_server" --watch -- --port 5001
+            # Start using ecosystem config (loads .env automatically)
+            pm2 start ecosystem.config.js || pm2 start /Ads/Ads_server/dist/main.js --name "Ads_server" --update-env -- --port 5001
             pm2 save
             pm2 startup
