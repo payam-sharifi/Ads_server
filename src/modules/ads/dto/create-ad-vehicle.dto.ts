@@ -74,6 +74,30 @@ export class CreateVehicleAdDto {
   @IsOptional()
   powerHP?: number;
 
+  @ApiPropertyOptional({ example: 2000, description: 'Engine size in CC' })
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  engineSize?: number;
+
+  @ApiPropertyOptional({ example: 4, description: 'Number of doors (for cars)' })
+  @IsNumber()
+  @Min(2)
+  @IsOptional()
+  doors?: number;
+
+  @ApiPropertyOptional({ example: 5, description: 'Number of seats (for cars)' })
+  @IsNumber()
+  @Min(2)
+  @IsOptional()
+  seats?: number;
+
+  @ApiPropertyOptional({ example: 1000, description: 'Load capacity in kg (for vans)' })
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  loadCapacity?: number;
+
   // Condition
   @ApiProperty({ enum: ['new', 'used'], example: 'used' })
   @IsEnum(['new', 'used'])
