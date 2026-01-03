@@ -40,8 +40,18 @@ async function bootstrap() {
     }),
   );
 
+  // #region agent log - Request logging middleware
+  app.use((req, res, next) => {
+    fetch('http://127.0.0.1:7246/ingest/fe4c5ec4-2787-4be7-9054-016ec7118181',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:41',message:'Incoming request',data:{method:req.method,url:req.url,path:req.path,originalUrl:req.originalUrl,baseUrl:req.baseUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    next();
+  });
+  // #endregion
+
   // API prefix
   app.setGlobalPrefix('api');
+  // #region agent log
+  fetch('http://127.0.0.1:7246/ingest/fe4c5ec4-2787-4be7-9054-016ec7118181',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:44',message:'Global prefix set',data:{prefix:'api'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
@@ -86,7 +96,13 @@ async function bootstrap() {
   }
 
   const port = process.env.PORT || 3001;
+  // #region agent log
+  fetch('http://127.0.0.1:7246/ingest/fe4c5ec4-2787-4be7-9054-016ec7118181',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:88',message:'Server starting',data:{port,globalPrefix:'api',nodeEnv:process.env.NODE_ENV},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   await app.listen(port);
+  // #region agent log
+  fetch('http://127.0.0.1:7246/ingest/fe4c5ec4-2787-4be7-9054-016ec7118181',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:90',message:'Server started successfully',data:{port,baseUrl:`http://localhost:${port}`,apiPrefix:'/api'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   console.log(`🚀 Server is running on: http://localhost:${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/api`);
 }
