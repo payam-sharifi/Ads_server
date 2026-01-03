@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, Between, IsNull } from 'typeorm';
+import { Repository, Like, Between, IsNull, In } from 'typeorm';
 import { Ad, AdStatus } from '../../entities/ad.entity';
 import { User } from '../../entities/user.entity';
 import { Bookmark } from '../../entities/bookmark.entity';
@@ -127,6 +127,34 @@ export class AdsService {
     query.skip(skip).take(limit);
 
     const [data, total] = await query.getManyAndCount();
+
+    // Load images separately to ensure they're always loaded
+    // TypeORM's leftJoinAndSelect sometimes doesn't load relations properly
+    if (data && data.length > 0) {
+      const adIds = data.map(ad => ad.id);
+      const { Image } = await import('../../entities/image.entity');
+      const imagesRepository = this.adsRepository.manager.getRepository(Image);
+      
+      // Load all images for these ads, ordered by order field
+      const allImages = await imagesRepository.find({
+        where: { adId: In(adIds) },
+        order: { order: 'ASC' },
+      });
+      
+      // Group images by adId
+      const imagesMap = new Map<string, typeof allImages>();
+      allImages.forEach(img => {
+        if (!imagesMap.has(img.adId)) {
+          imagesMap.set(img.adId, []);
+        }
+        imagesMap.get(img.adId)!.push(img);
+      });
+      
+      // Assign images to ads
+      data.forEach(ad => {
+        ad.images = imagesMap.get(ad.id) || [];
+      });
+    }
 
     return {
       data,

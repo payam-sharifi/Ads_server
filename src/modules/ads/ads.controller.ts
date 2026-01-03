@@ -66,9 +66,6 @@ export class AdsController {
   @ApiOperation({ summary: 'Get all ads with filtering and pagination' })
   @ApiResponse({ status: 200, description: 'Ads retrieved successfully' })
   findAll(@Query() filters: FilterAdsDto, @CurrentUser() user?: User) {
-    // #region agent log
-    fetch('http://127.0.0.1:7246/ingest/fe4c5ec4-2787-4be7-9054-016ec7118181',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ads.controller.ts:69',message:'GET /ads route handler called',data:{filters,hasUser:!!user,userId:user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     return this.adsService.findAll(filters, user);
   }
 

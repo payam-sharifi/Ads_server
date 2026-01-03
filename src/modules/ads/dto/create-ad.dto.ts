@@ -192,6 +192,22 @@ export class CreateAdDto {
   @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
   powerHP?: number;
 
+  @ApiPropertyOptional({ description: 'Vehicle: engine size in CC' })
+  @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
+  engineSize?: number;
+
+  @ApiPropertyOptional({ description: 'Vehicle: number of doors (for cars)' })
+  @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
+  doors?: number;
+
+  @ApiPropertyOptional({ description: 'Vehicle: number of seats (for cars)' })
+  @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
+  seats?: number;
+
+  @ApiPropertyOptional({ description: 'Vehicle: load capacity in kg (for vans)' })
+  @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
+  loadCapacity?: number;
+
   @ApiPropertyOptional({ enum: ['none', 'accident'], description: 'Vehicle: damage status' })
   @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
   damageStatus?: string;
