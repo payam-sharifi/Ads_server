@@ -12,6 +12,7 @@ import { AdminPermission } from '../entities/admin-permission.entity';
 import { Report } from '../entities/report.entity';
 import { AuditLog } from '../entities/audit-log.entity';
 import { Bookmark } from '../entities/bookmark.entity';
+import { EmailVerification } from '../entities/email-verification.entity';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +37,7 @@ export default new DataSource({
     Report,
     AuditLog,
     Bookmark,
+    EmailVerification,
   ],
   migrations: [
     process.env.NODE_ENV === 'production' 

@@ -25,11 +25,11 @@ import * as fs from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
  
-  // Enable CORS for frontend
- // app.enableCors({
-  //  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-   // credentials: true,
-  //});
+  //Enable CORS for frontend
+ app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+  });
 
   // Global validation pipe for DTOs
   app.useGlobalPipes(

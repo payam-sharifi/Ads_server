@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { VerifyCodeDto } from '../email-verification/dto/verify-code.dto';
 import { Public } from '../../decorators/public.decorator';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
@@ -24,7 +25,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
-   * User Signup
+   * User Signup - sends verification code to email
    * 
    * Request:
    *   POST /api/auth/signup
@@ -32,22 +33,13 @@ export class AuthController {
    *     "name": "John Doe",
    *     "email": "john@example.com",
    *     "phone": "+49 123 456789",
-   *     "password": "securePassword123",
-   *     "role": "user"  // optional, defaults to "user"
+   *     "password": "securePassword123"
    *   }
    * 
    * Response:
    *   {
-   *     "user": {
-   *       "id": "uuid",
-   *       "name": "John Doe",
-   *       "email": "john@example.com",
-   *       "phone": "+49 123 456789",
-   *       "role": "user",
-   *       "createdAt": "2024-01-01T00:00:00.000Z",
-   *       "updatedAt": "2024-01-01T00:00:00.000Z"
-   *     },
-   *     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   *     "message": "کد تأیید به ایمیل شما ارسال شد",
+   *     "email": "john@example.com"
    *   }
    * 
    * Errors:
@@ -56,13 +48,43 @@ export class AuthController {
    */
   @Post('signup')
   @Public()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully registered' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Start user registration - sends verification code' })
+  @ApiResponse({ status: 200, description: 'Verification code sent successfully' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 409, description: 'Email already exists' })
   async signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
+  }
+
+  /**
+   * Complete Signup - verify code and create user
+   * 
+   * Request:
+   *   POST /api/auth/complete-signup
+   *   Body: {
+   *     "email": "john@example.com",
+   *     "code": "1234"
+   *   }
+   * 
+   * Response:
+   *   {
+   *     "user": { ... },
+   *     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   *     "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   *   }
+   * 
+   * Errors:
+   *   - 400: Invalid or expired code
+   */
+  @Post('complete-signup')
+  @Public()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Complete user registration after email verification' })
+  @ApiResponse({ status: 201, description: 'User successfully registered and logged in' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired verification code' })
+  async completeSignup(@Body() verifyCodeDto: VerifyCodeDto) {
+    return this.authService.completeSignup(verifyCodeDto.email, verifyCodeDto.code);
   }
 
   /**

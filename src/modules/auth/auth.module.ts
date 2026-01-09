@@ -4,11 +4,13 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
+import { EmailVerificationModule } from '../email-verification/email-verification.module';
 import { JwtStrategy } from '../../strategies/jwt.strategy';
 
 @Module({
   imports: [
     UsersModule,
+    EmailVerificationModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',

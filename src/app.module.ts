@@ -15,6 +15,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { GuardsModule } from './modules/guards/guards.module';
+import { EmailVerificationModule } from './modules/email-verification/email-verification.module';
 
 import { User } from './entities/user.entity';
 import { Category } from './entities/category.entity';
@@ -28,6 +29,7 @@ import { AdminPermission } from './entities/admin-permission.entity';
 import { Report } from './entities/report.entity';
 import { AuditLog } from './entities/audit-log.entity';
 import { Bookmark } from './entities/bookmark.entity';
+import { EmailVerification } from './entities/email-verification.entity';
 
 /**
  * Main application module
@@ -67,12 +69,11 @@ import { Bookmark } from './entities/bookmark.entity';
         Report,
         AuditLog,
         Bookmark,
+        EmailVerification,
       ],
-      migrations: [
-        process.env.NODE_ENV === 'production'
-          ? 'dist/database/migrations/*.js'
-          : 'src/database/migrations/*.ts'
-      ],
+      migrations: process.env.NODE_ENV === 'production'
+        ? ['dist/database/migrations/*.js']
+        : [],
       synchronize: process.env.NODE_ENV !== 'production', // Auto-sync in dev mode
       logging: process.env.NODE_ENV === 'development',
     }),
@@ -97,6 +98,7 @@ import { Bookmark } from './entities/bookmark.entity';
     PermissionsModule,
     ReportsModule,
     AuditLogModule,
+    EmailVerificationModule,
   ],
 })
 export class AppModule {}

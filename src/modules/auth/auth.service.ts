@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../../entities/user.entity';
+import { EmailVerificationService } from '../email-verification/email-verification.service';
 
 /**
  * Auth Service
@@ -19,6 +20,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailVerificationService: EmailVerificationService,
   ) {}
 
   /**
@@ -112,13 +114,45 @@ export class AuthService {
   }
 
   /**
-   * User signup
+   * User signup - sends verification code to email
    * 
    * @param createUserDto - User registration data
-   * @returns User object, JWT access token, and refresh token
+   * @returns Success message
    */
   async signup(createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
+    // Check if user with email already exists
+    const existingUser = await this.usersService.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Send verification code
+    await this.emailVerificationService.sendVerificationCode(
+      createUserDto.email,
+      createUserDto,
+    );
+
+    return {
+      message: 'کد تأیید به ایمیل شما ارسال شد',
+      email: createUserDto.email,
+    };
+  }
+
+  /**
+   * Complete signup after email verification
+   * 
+   * @param email - User email
+   * @param code - Verification code
+   * @returns User object, JWT access token, and refresh token
+   */
+  async completeSignup(email: string, code: string) {
+    // Verify code and get signup data
+    const signupData = await this.emailVerificationService.verifyCode(email, code);
+
+    // Create user
+    const user = await this.usersService.create(signupData);
+
+    // Generate tokens
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: process.env.JWT_EXPIRES_IN || '15m',
