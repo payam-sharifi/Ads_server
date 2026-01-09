@@ -44,7 +44,7 @@ export class EmailVerificationService {
     // Generate new code
     const code = this.generateCode();
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // Code expires in 10 minutes
+    expiresAt.setMinutes(expiresAt.getMinutes() + 3); // Code expires in 3 minutes
 
     // Save verification record
     const verification = this.emailVerificationRepository.create({
@@ -87,6 +87,28 @@ export class EmailVerificationService {
 
     // Return signup data
     return JSON.parse(verification.signupData) as CreateUserDto;
+  }
+
+  /**
+   * Resend verification code for an email
+   * Gets the signup data from existing verification record
+   */
+  async resendVerificationCode(email: string): Promise<{ code: string; expiresAt: Date }> {
+    // Find the most recent verification record (even if expired) to get signup data
+    const existingVerification = await this.emailVerificationRepository.findOne({
+      where: { email, verified: false },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!existingVerification) {
+      throw new NotFoundException('هیچ درخواست تأیید ایمیل یافت نشد. لطفاً دوباره ثبت نام کنید.');
+    }
+
+    // Get signup data from existing verification
+    const signupData = JSON.parse(existingVerification.signupData) as CreateUserDto;
+
+    // Resend code using existing signup data
+    return this.sendVerificationCode(email, signupData);
   }
 
   /**
