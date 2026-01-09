@@ -64,7 +64,7 @@ export class EmailService {
               <span style="font-size: 32px; font-weight: bold; color: #dc3545; letter-spacing: 8px; font-family: 'Courier New', monospace;">${code}</span>
             </div>
             <p style="color: #666; font-size: 14px; line-height: 1.6;">
-              این کد تا ۱۰ دقیقه دیگر معتبر است.
+              این کد تا ۳ دقیقه دیگر معتبر است.
             </p>
             <p style="color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
               اگر شما این ایمیل را درخواست نکرده‌اید، لطفاً آن را نادیده بگیرید.
@@ -81,7 +81,7 @@ export class EmailService {
 
 ${code}
 
-این کد تا ۱۰ دقیقه دیگر معتبر است.
+این کد تا ۳ دقیقه دیگر معتبر است.
 
 اگر شما این ایمیل را درخواست نکرده‌اید، لطفاً آن را نادیده بگیرید.
       `,
