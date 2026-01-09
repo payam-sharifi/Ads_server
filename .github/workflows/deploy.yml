@@ -31,6 +31,6 @@ jobs:
             # Delete existing PM2 process
             pm2 delete Ads_server || true
             # Start using ecosystem config (loads .env automatically)
-            pm2 start ecosystem.config.js || pm2 start /Ads/Ads_server/dist/main.js --name "Ads_server" --update-env -- --port 5001
+            pm2 start /Ads/Ads_server/dist/src/main.js --name "Ads_server" --update-env -- --port 5001
             pm2 save
             pm2 startup
