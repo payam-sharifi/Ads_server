@@ -28,6 +28,6 @@ jobs:
             npm run build
             # Delete existing PM2 process
             pm2 delete Ads_server || true
-            pm2 start /Ads/Ads_server/dist/src/main.js --name "Ads_server" --no-watch --update-env -- --port 5001
+            pm2 start /Ads/Ads_server/dist/src/main.js --name "Ads_server" --update-env -- --port 5001
             pm2 save
             pm2 startup
