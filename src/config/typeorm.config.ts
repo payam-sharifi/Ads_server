@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 import { User } from '../entities/user.entity';
 import { Category } from '../entities/category.entity';
 import { Ad } from '../entities/ad.entity';
@@ -41,8 +42,8 @@ export default new DataSource({
   ],
   migrations: [
     process.env.NODE_ENV === 'production' 
-      ? 'dist/database/migrations/*.js'
-      : 'src/database/migrations/*.ts'
+      ? resolve(process.cwd(), 'dist/src/database/migrations/*.js')
+      : resolve(process.cwd(), 'src/database/migrations/*.ts')
   ],
   synchronize: false, // Never use synchronize in production
   logging: process.env.NODE_ENV === 'development',

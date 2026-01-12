@@ -21,8 +21,10 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/typeorm.config.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/typeorm.config.ts",
+    "migration:run:prod": "NODE_ENV=production ts-node -r tsconfig-paths/register -r dotenv/config node_modules/typeorm/cli.js migration:run -d src/config/typeorm.config.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/typeorm.config.ts",
     "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/typeorm.config.ts",
+    "migration:show:prod": "NODE_ENV=production ts-node -r tsconfig-paths/register -r dotenv/config node_modules/typeorm/cli.js migration:show -d src/config/typeorm.config.ts",
     "seed": "ts-node -r dotenv/config src/database/seeds/seed.ts",
     "setup:prod": "npm run migration:run && npm run seed",
     "verify-jwt-secret": "ts-node -r dotenv/config scripts/verify-jwt-secret.ts"

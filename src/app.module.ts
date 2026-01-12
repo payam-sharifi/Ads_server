@@ -4,6 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join, resolve } from 'path';
 
+// Explicitly import pg driver to avoid dynamic loading issues
+try {
+  require('pg');
+} catch (err) {
+  // Ignore if pg is not available
+}
+
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CategoriesModule } from './modules/categories/categories.module';
@@ -73,7 +80,7 @@ import { EmailVerification } from './entities/email-verification.entity';
       ],
       migrations: process.env.NODE_ENV === 'production'
         ? ['dist/src/database/migrations/*.js']
-        : ['src/database/migrations/*.ts'],
+        : [], // Disable migrations in dev to avoid strict mode errors
       synchronize: process.env.NODE_ENV !== 'production', // Auto-sync in dev mode
       logging: process.env.NODE_ENV === 'development',
     }),

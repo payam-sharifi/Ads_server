@@ -27,9 +27,9 @@ import * as fs from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // #region agent log
   try {
-    const dataSource = app.get<DataSource>(getDataSourceToken());
+    const dataSourceToken = getDataSourceToken();
+    const dataSource = app.get(dataSourceToken) as DataSource;
     const tables = await dataSource.query(`
       SELECT table_name 
       FROM information_schema.tables 
@@ -37,11 +37,9 @@ async function bootstrap() {
       AND table_type = 'BASE TABLE'
       ORDER BY table_name;
     `);
-    fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:28',message:'Application startup - tables check',data:{tables:tables.map((t:any)=>t.table_name),emailVerificationsExists:tables.some((t:any)=>t.table_name==='email_verifications')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
   } catch (err: any) {
-    fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.ts:28',message:'Startup table check error',data:{error:err?.message,stack:err?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // Ignore table check errors
   }
-  // #endregion agent log
  
   //Enable CORS for frontend
  app.enableCors({
