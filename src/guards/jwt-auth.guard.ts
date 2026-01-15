@@ -1,6 +1,7 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector, ModuleRef } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { UsersService } from '../modules/users/users.service';
 import { ExtractJwt } from 'passport-jwt';
@@ -16,6 +17,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
     private moduleRef: ModuleRef,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -39,7 +41,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         if (token) {
           // Validate token and get user
           const jwt = require('jsonwebtoken');
-          const secret = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+          const secret = this.configService.get<string>('JWT_SECRET') || 'your-super-secret-jwt-key-change-this-in-production';
           const payload = jwt.verify(token, secret);
           
           // Get user with role using ModuleRef to avoid circular dependency

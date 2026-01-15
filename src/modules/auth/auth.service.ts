@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
@@ -20,6 +21,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
     private emailVerificationService: EmailVerificationService,
   ) {}
 
@@ -61,11 +63,11 @@ export class AuthService {
 
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') || '15m',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
     });
 
     // Save refresh token to user
@@ -94,7 +96,7 @@ export class AuthService {
 
       const newPayload = { email: user.email, sub: user.id };
       const accessToken = this.jwtService.sign(newPayload, {
-        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+        expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') || '15m',
       });
 
       return {
@@ -155,11 +157,11 @@ export class AuthService {
     // Generate tokens
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') || '15m',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
     });
 
     // Save refresh token to user
