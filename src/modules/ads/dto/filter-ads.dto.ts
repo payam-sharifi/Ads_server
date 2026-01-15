@@ -49,6 +49,76 @@ export class FilterAdsDto {
   @IsOptional()
   search?: string;
 
+  @ApiPropertyOptional({ example: 'BMW', description: 'Filter by brand (vehicles)' })
+  @IsString()
+  @IsOptional()
+  brand?: string;
+
+  @ApiPropertyOptional({ example: 'X5', description: 'Filter by model (vehicles)' })
+  @IsString()
+  @IsOptional()
+  model?: string;
+
+  @ApiPropertyOptional({ example: 2020, description: 'Minimum year (vehicles)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  minYear?: number;
+
+  @ApiPropertyOptional({ example: 2024, description: 'Maximum year (vehicles)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  maxYear?: number;
+
+  @ApiPropertyOptional({ example: 100000, description: 'Maximum mileage (vehicles)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  maxMileage?: number;
+
+  @ApiPropertyOptional({ example: 'petrol', description: 'Fuel type (vehicles)' })
+  @IsString()
+  @IsOptional()
+  fuelType?: string;
+
+  @ApiPropertyOptional({ example: 'automatic', description: 'Transmission (vehicles)' })
+  @IsString()
+  @IsOptional()
+  transmission?: string;
+
+  @ApiPropertyOptional({ enum: ['new', 'like-new', 'used'], example: 'used', description: 'Item condition' })
+  @IsString()
+  @IsOptional()
+  condition?: string;
+
+  @ApiPropertyOptional({ example: 'sale', description: 'Offer type (real estate)' })
+  @IsString()
+  @IsOptional()
+  offerType?: string;
+
+  @ApiPropertyOptional({ example: 'apartment', description: 'Property type (real estate)' })
+  @IsString()
+  @IsOptional()
+  propertyType?: string;
+
+  @ApiPropertyOptional({ example: 50, description: 'Minimum area (real estate)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  minArea?: number;
+
+  @ApiPropertyOptional({ example: 200, description: 'Maximum area (real estate)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  maxArea?: number;
+
+  @ApiPropertyOptional({ example: '3', description: 'Number of rooms (real estate)' })
+  @IsString()
+  @IsOptional()
+  rooms?: string;
+
   @ApiPropertyOptional({ example: 'uuid', description: 'Filter by user ID (owner)' })
   @IsUUID()
   @IsOptional()

@@ -38,36 +38,7 @@ export class EmailVerificationService {
     email: string,
     signupData: CreateUserDto,
   ): Promise<{ code: string; expiresAt: Date }> {
-    // #region agent log
-    try {
-      const tableExists = await this.dataSource.query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name = 'email_verifications'
-        );
-      `);
-      fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email-verification.service.ts:38',message:'Table existence check',data:{tableExists:tableExists[0]?.exists,email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    } catch (err: any) {
-      fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email-verification.service.ts:38',message:'Table check error',data:{error:err?.message,email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    }
-    // #endregion agent log
-    
-    // #region agent log
-    try {
-      const executedMigrations = await this.dataSource.query(`
-        SELECT * FROM migrations ORDER BY timestamp DESC LIMIT 5;
-      `);
-      fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email-verification.service.ts:48',message:'Executed migrations check',data:{executedMigrations},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    } catch (err: any) {
-      fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email-verification.service.ts:48',message:'Migration table check error',data:{error:err?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    }
-    // #endregion agent log
-
     // Delete any existing unverified codes for this email
-    // #region agent log
-    fetch('http://127.0.0.1:7251/ingest/16dff4fb-acde-45fe-9026-2a312fc80629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email-verification.service.ts:40',message:'Before delete operation',data:{email,repositoryReady:!!this.emailVerificationRepository},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion agent log
     await this.emailVerificationRepository.delete({
       email,
       verified: false,

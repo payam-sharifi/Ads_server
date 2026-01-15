@@ -23,7 +23,7 @@ export class EmailVerification {
   @Column({ type: 'varchar', length: 4 })
   code: string; // 4-digit code
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, name: 'signup_data' })
   signupData: string; // JSON string of signup data (name, email, phone, password)
 
   @Column({ type: 'boolean', default: false })

@@ -62,6 +62,21 @@ export class AdsService {
       limit = 20,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
+      condition,
+      // Vehicle filters
+      brand,
+      model,
+      minYear,
+      maxYear,
+      maxMileage,
+      fuelType,
+      transmission,
+      // Real Estate filters
+      offerType,
+      propertyType,
+      minArea,
+      maxArea,
+      rooms,
     } = filters;
 
     const query = this.adsRepository.createQueryBuilder('ad');
@@ -98,6 +113,10 @@ export class AdsService {
       query.andWhere('ad.cityId = :cityId', { cityId });
     }
 
+    if (condition) {
+      query.andWhere('ad.condition = :condition', { condition });
+    }
+
     if (userId) {
       query.andWhere('ad.userId = :userId', { userId });
     }
@@ -115,6 +134,56 @@ export class AdsService {
         '(ad.title ILIKE :search OR ad.description ILIKE :search)',
         { search: `%${search}%` },
       );
+    }
+
+    // Vehicle filters
+    if (brand) {
+      query.andWhere("ad.metadata ->> 'brand' ILIKE :brand", { brand: `%${brand}%` });
+    }
+
+    if (model) {
+      query.andWhere("ad.metadata ->> 'model' ILIKE :model", { model: `%${model}%` });
+    }
+
+    if (minYear) {
+      query.andWhere("CAST(ad.metadata ->> 'year' AS INTEGER) >= :minYear", { minYear });
+    }
+
+    if (maxYear) {
+      query.andWhere("CAST(ad.metadata ->> 'year' AS INTEGER) <= :maxYear", { maxYear });
+    }
+
+    if (maxMileage) {
+      query.andWhere("CAST(ad.metadata ->> 'mileage' AS INTEGER) <= :maxMileage", { maxMileage });
+    }
+
+    if (fuelType) {
+      query.andWhere("ad.metadata ->> 'fuelType' = :fuelType", { fuelType });
+    }
+
+    if (transmission) {
+      query.andWhere("ad.metadata ->> 'transmission' = :transmission", { transmission });
+    }
+
+    // Real Estate filters
+    if (offerType) {
+      query.andWhere("ad.metadata ->> 'offerType' = :offerType", { offerType });
+    }
+
+    if (propertyType) {
+      query.andWhere("ad.metadata ->> 'propertyType' = :propertyType", { propertyType });
+    }
+
+    if (minArea) {
+      query.andWhere("CAST(ad.metadata ->> 'area' AS INTEGER) >= :minArea", { minArea });
+    }
+
+    if (maxArea) {
+      query.andWhere("CAST(ad.metadata ->> 'area' AS INTEGER) <= :maxArea", { maxArea });
+    }
+
+    if (rooms) {
+      query.andWhere("ad.metadata ->> 'rooms' = :rooms", { rooms });
     }
 
     // Sorting
