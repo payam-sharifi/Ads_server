@@ -218,7 +218,7 @@ export class CreateAdDto {
 
   // Service fields
   @ApiPropertyOptional({ 
-    enum: ['home_services', 'transport', 'repairs', 'it_design', 'education', 'personal_services'],
+    enum: ['construction', 'transport', 'shipping', 'repairs', 'education', 'personal_services'],
     description: 'Service: category' 
   })
   @ValidateIf((o) => o.categoryId === MainCategoryType.SERVICES)

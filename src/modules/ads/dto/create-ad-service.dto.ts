@@ -29,7 +29,7 @@ export class CreateServiceAdDto {
   @IsString()
   cityId: string;
 
-  @ApiProperty({ enum: ServiceCategory, example: ServiceCategory.HOME_SERVICES })
+  @ApiProperty({ enum: ServiceCategory, example: ServiceCategory.CONSTRUCTION })
   @IsEnum(ServiceCategory)
   serviceCategory: ServiceCategory;
 
