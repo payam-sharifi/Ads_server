@@ -110,7 +110,7 @@ export class AdsService {
     }
 
     if (cityId) {
-      query.andWhere('ad.cityId = :cityId', { cityId });
+      query.andWhere('(ad.cityId = :cityId OR ad.cityId IS NULL)', { cityId });
     }
 
     if (condition) {

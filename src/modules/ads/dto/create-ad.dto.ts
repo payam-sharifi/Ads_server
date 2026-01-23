@@ -45,9 +45,10 @@ export class CreateAdDto {
   @IsUUID()
   categoryId: string;
 
-  @ApiProperty({ example: 'uuid', description: 'City ID' })
+  @ApiProperty({ example: 'uuid', description: 'City ID', required: false })
   @IsUUID()
-  cityId: string;
+  @IsOptional()
+  cityId?: string;
 
   @ApiProperty({ example: 25000, description: 'Price in euros (required for vehicles, optional for others)' })
   @IsNumber()
@@ -218,7 +219,7 @@ export class CreateAdDto {
 
   // Service fields
   @ApiPropertyOptional({ 
-    enum: ['construction', 'transport', 'shipping', 'repairs', 'education', 'personal_services'],
+    enum: ['construction', 'transport', 'repairs', 'education', 'personal_services'],
     description: 'Service: category' 
   })
   @ValidateIf((o) => o.categoryId === MainCategoryType.SERVICES)

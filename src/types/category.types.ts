@@ -131,7 +131,6 @@ export interface VehicleMetadata {
 export enum ServiceCategory {
   CONSTRUCTION = 'construction',
   TRANSPORT = 'transport',
-  SHIPPING = 'shipping',
   REPAIRS = 'repairs',
   EDUCATION = 'education',
   PERSONAL_SERVICES = 'personal_services',

@@ -391,13 +391,13 @@ async function seed() {
     
     // Service Ads (20 ads)
     if (servicesCategory) {
-      const serviceCategories = ['construction', 'transport', 'shipping', 'repairs', 'education'];
+      const serviceCategories = ['construction', 'transport', 'repairs', 'education'];
       const pricingTypes = ['hourly', 'fixed', 'project'];
       for (let i = 0; i < 20; i++) {
         const serviceCategory = serviceCategories[Math.floor(Math.random() * serviceCategories.length)];
         const pricingType = pricingTypes[Math.floor(Math.random() * pricingTypes.length)];
         ads.push({
-          title: `خدمات ${serviceCategory === 'construction' ? 'ساختمان' : serviceCategory === 'transport' ? 'حمل و نقل' : serviceCategory === 'shipping' ? 'ارسال بار' : serviceCategory}`,
+          title: `خدمات ${serviceCategory === 'construction' ? 'ساختمان' : serviceCategory === 'transport' ? 'حمل و نقل' : serviceCategory}`,
           description: `ارائه خدمات حرفه‌ای و با کیفیت در زمینه ${serviceCategory}`,
           price: pricingType === 'hourly' ? Math.floor(Math.random() * 100) + 20 : Math.floor(Math.random() * 1000) + 100,
           categoryId: servicesCategory.id,

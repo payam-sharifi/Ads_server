@@ -87,7 +87,7 @@ export class Ad {
   @Index()
   userId: string;
 
-  @Column({ type: 'uuid', name: 'city_id' })
+  @Column({ type: 'uuid', name: 'city_id', nullable: true })
   @Index()
   cityId: string;
 
