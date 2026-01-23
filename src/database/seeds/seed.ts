@@ -295,6 +295,7 @@ async function seed() {
     const vehiclesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.VEHICLES);
     const servicesCategory = savedCategories.find(c => c.categoryType === MainCategoryType.SERVICES);
     const jobsCategory = savedCategories.find(c => c.categoryType === MainCategoryType.JOBS);
+    const personalHomeCategory = savedCategories.find(c => c.categoryType === MainCategoryType.PERSONAL_HOME);
     const miscCategory = savedCategories.find(c => c.categoryType === MainCategoryType.MISC);
     
     const ads = [];
@@ -438,6 +439,28 @@ async function seed() {
             employmentType: employmentTypes[Math.floor(Math.random() * employmentTypes.length)],
             experienceLevel: experienceLevels[Math.floor(Math.random() * experienceLevels.length)],
             salary: Math.floor(Math.random() * 50000) + 30000,
+            postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+          },
+        });
+      }
+    }
+
+    // Personal & Home Ads (10 ads)
+    if (personalHomeCategory) {
+      const homeItems = ['مبلمان', 'تلویزیون', 'فرش', 'ماشین لباسشویی', 'یخچال', 'تخت خواب'];
+      for (let i = 0; i < 10; i++) {
+        const item = homeItems[Math.floor(Math.random() * homeItems.length)];
+        ads.push({
+          title: `${item} در حد نو`,
+          description: `${item} بسیار تمیز و کم کارکرد. به علت جابجایی فروخته می‌شود.`,
+          price: Math.floor(Math.random() * 1000) + 50,
+          categoryId: personalHomeCategory.id,
+          cityId: savedCities[Math.floor(Math.random() * savedCities.length)].id,
+          userId: users[Math.floor(Math.random() * users.length)].id,
+          status: AdStatus.APPROVED,
+          views: Math.floor(Math.random() * 150),
+          metadata: {
+            condition: 'like-new',
             postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
           },
         });

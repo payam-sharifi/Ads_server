@@ -41,9 +41,12 @@ export class CategoryValidatorService {
         metadata = this.extractJobMetadata(validatedDto);
         break;
 
+      case MainCategoryType.PERSONAL_HOME:
       case MainCategoryType.MISC:
-        // Misc category only needs title and description, no additional validation needed
-        metadata = {};
+        // These categories only need title and description, no additional validation needed
+        metadata = {
+          isNegotiable: createAdDto.isNegotiable || false,
+        };
         break;
 
       default:

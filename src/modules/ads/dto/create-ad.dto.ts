@@ -83,6 +83,15 @@ export class CreateAdDto {
   @IsOptional()
   showPhone?: boolean;
 
+  @ApiPropertyOptional({
+    description: 'Whether the price is negotiable',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isNegotiable?: boolean;
+
   // Category-specific fields (validated conditionally in service)
   // Real Estate fields
   @ApiPropertyOptional({ enum: ['sale', 'rent'], description: 'Real Estate: offer type' })

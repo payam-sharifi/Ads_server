@@ -286,7 +286,7 @@ export class AdsService {
     }
 
     if (!category.categoryType) {
-      throw new BadRequestException('Category must be one of the main categories (real_estate, vehicles, services, jobs, misc)');
+      throw new BadRequestException('Category must be one of the main categories (real_estate, vehicles, services, jobs, personal_home, misc)');
     }
 
     // Validate category-specific fields
@@ -317,8 +317,8 @@ export class AdsService {
       price = metadata.price || 0;
     } else if (category.categoryType === 'jobs') {
       price = 0; // Jobs don't have price
-    } else if (category.categoryType === 'misc') {
-      price = createAdDto.price || 0; // Misc can have price
+    } else if (category.categoryType === 'personal_home' || category.categoryType === 'misc') {
+      price = createAdDto.price || 0; // Personal Home and Misc can have price
     }
 
     // Create ad with validated metadata
@@ -336,7 +336,12 @@ export class AdsService {
       showPhone: createAdDto.showPhone || false,
     });
 
-    return this.adsRepository.save(ad);
+    try {
+      const savedAd = await this.adsRepository.save(ad);
+      return savedAd;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

@@ -14,6 +14,7 @@ export enum MainCategoryType {
   VEHICLES = 'vehicles',
   SERVICES = 'services',
   JOBS = 'jobs',
+  PERSONAL_HOME = 'personal_home',
   MISC = 'misc',
 }
 
@@ -258,6 +259,12 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     name: { fa: 'استخدام و کاریابی', de: 'Jobs' },
     icon: '💼',
     metadataSchema: 'jobs',
+  },
+  {
+    id: MainCategoryType.PERSONAL_HOME,
+    name: { fa: 'لوازم شخصی و منزل', de: 'Haus & Persönliches' },
+    icon: '🛋️',
+    metadataSchema: 'misc',
   },
   {
     id: MainCategoryType.MISC,
