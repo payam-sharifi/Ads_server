@@ -61,9 +61,9 @@ async function bootstrap() {
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
-    .setTitle('Classified Ads API')
+    .setTitle('PersianAds API')
     .setDescription(
-      'REST API for Classified Ads Website. Provides endpoints for users, categories, ads, images, and messages.',
+      'REST API for PersianAds Website. Provides endpoints for users, categories, ads, images, and messages.',
     )
     .setVersion('1.0')
     .addBearerAuth(

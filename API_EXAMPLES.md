@@ -1,6 +1,6 @@
-# API Usage Examples
+# PersianAds API Usage Examples
 
-Complete examples for using the Classified Ads API.
+Complete examples for using the PersianAds API.
 
 ## Base URL
 ```

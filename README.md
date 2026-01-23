@@ -1,6 +1,6 @@
-# Classified Ads Backend API
+# PersianAds Backend API
 
-REST API backend for the Classified Ads website built with NestJS, TypeORM, and PostgreSQL.
+REST API backend for the PersianAds website built with NestJS, TypeORM, and PostgreSQL.
 
 ## 🚀 Features
 

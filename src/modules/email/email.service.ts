@@ -49,7 +49,7 @@ export class EmailService {
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to: email,
-      subject: 'کد تأیید ثبت نام - Classified Ads',
+      subject: 'کد تأیید ثبت نام - PersianAds',
       html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -58,7 +58,7 @@ export class EmailService {
               سلام ${name || 'کاربر عزیز'}،
             </p>
             <p style="color: #666; font-size: 16px; line-height: 1.6;">
-              برای تکمیل ثبت نام در سایت Classified Ads، لطفاً کد زیر را در صفحه تأیید وارد کنید:
+              برای تکمیل ثبت نام در سایت PersianAds، لطفاً کد زیر را در صفحه تأیید وارد کنید:
             </p>
             <div style="background-color: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; margin: 30px 0; border-radius: 5px;">
               <span style="font-size: 32px; font-weight: bold; color: #dc3545; letter-spacing: 8px; font-family: 'Courier New', monospace;">${code}</span>
@@ -77,7 +77,7 @@ export class EmailService {
 
 سلام ${name || 'کاربر عزیز'}،
 
-برای تکمیل ثبت نام در سایت Classified Ads، لطفاً کد زیر را در صفحه تأیید وارد کنید:
+برای تکمیل ثبت نام در سایت PersianAds، لطفاً کد زیر را در صفحه تأیید وارد کنید:
 
 ${code}
 
