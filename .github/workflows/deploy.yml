@@ -23,8 +23,11 @@ jobs:
           timeout: 5m  # Correct parameter name
           script: |
             cd /Ads/Ads_server
-            git pull 
+            git pull
+            # Install libvips so sharp builds from source (fixes "Unsupported CPU: v2 microarchitecture" on older servers)
+            (command -v apt-get >/dev/null && sudo apt-get update && sudo apt-get install -y libvips-dev build-essential) || true
             npm install
+            npm rebuild sharp
             npm run build
             # Delete existing PM2 process
             pm2 delete Ads_server || true
