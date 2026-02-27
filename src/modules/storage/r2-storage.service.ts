@@ -73,26 +73,27 @@ export class R2StorageService {
 
   /**
    * Generate a unique storage key for an image
-   * Always appends .webp since we convert all uploads to WebP via Jimp
+   * Preserves original file extension (no processing)
    */
   private generateKey(originalFilename: string): string {
     const sanitized = this.sanitizeFilename(originalFilename);
     const uniqueId = uuidv4();
+    const ext = (sanitized.match(/\.[^.]+$/) || ['.jpg'])[0];
     const baseName = sanitized.replace(/\.[^.]+$/, '') || 'image';
-    return `images/${uniqueId}-${baseName}.webp`;
+    return `images/${uniqueId}-${baseName}${ext}`;
   }
 
   /**
    * Upload a buffer to R2
-   * @param buffer - Image buffer (e.g. WebP)
+   * @param buffer - File buffer (stored as-is, no processing)
    * @param originalFilename - Original filename for key generation
-   * @param contentType - MIME type (e.g. image/webp)
+   * @param contentType - MIME type (e.g. image/jpeg, image/png)
    * @returns Object key and public/signed URL
    */
   async upload(
     buffer: Buffer,
     originalFilename: string,
-    contentType: string = 'image/webp',
+    contentType: string = 'application/octet-stream',
   ): Promise<{ key: string; url: string }> {
     const key = this.generateKey(originalFilename);
 

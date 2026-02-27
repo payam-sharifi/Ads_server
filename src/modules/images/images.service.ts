@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Image } from '../../entities/image.entity';
 import { Ad } from '../../entities/ad.entity';
 import { R2StorageService } from '../storage/r2-storage.service';
-import { ImageProcessorService } from '../storage/image-processor.service';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 
@@ -12,11 +11,11 @@ import * as path from 'path';
  * Images Service
  *
  * Handles image upload and management with Cloudflare R2:
- * - Upload images (compress, convert to WebP, store in R2)
+ * - Upload images (store in R2 as-is)
  * - List images for an ad
  * - Delete images from R2
  *
- * Uses R2 for cloud storage. Images are processed with Jimp before upload.
+ * Uses R2 for cloud storage. Images are stored as-is without processing.
  */
 @Injectable()
 export class ImagesService {
@@ -30,7 +29,6 @@ export class ImagesService {
     @InjectRepository(Ad)
     private adsRepository: Repository<Ad>,
     private readonly r2Storage: R2StorageService,
-    private readonly imageProcessor: ImageProcessorService,
     private readonly configService: ConfigService,
   ) {
     this.useR2 = !!this.configService.get<string>('CF_R2_ACCESS_KEY_ID');
@@ -91,7 +89,7 @@ export class ImagesService {
 
   /**
    * Upload image for an ad
-   * Processes with Jimp (compress, WebP), uploads to R2, stores metadata.
+   * Stores uploaded file as-is in R2, no processing.
    *
    * @param file - Uploaded file (buffer from memory storage)
    * @param adId - Ad ID
@@ -108,21 +106,15 @@ export class ImagesService {
       throw new BadRequestException('No file or file buffer provided');
     }
 
-    let processedBuffer: Buffer;
-    try {
-      processedBuffer = await this.imageProcessor.processToWebP(file.buffer);
-    } catch (err: any) {
-      throw new BadRequestException(err?.message || 'Image processing failed');
-    }
-
     const originalName = file.originalname || 'image';
+    const mimeType = file.mimetype || 'application/octet-stream';
     let key: string;
     let urlToStore: string;
     try {
       const result = await this.r2Storage.upload(
-        processedBuffer,
+        file.buffer,
         originalName,
-        'image/webp',
+        mimeType,
       );
       key = result.key;
       urlToStore = result.url;
@@ -143,9 +135,9 @@ export class ImagesService {
 
     const image = this.imagesRepository.create({
       url: urlToStore,
-      fileName: path.basename(originalName, path.extname(originalName)) + '.webp',
-      fileSize: processedBuffer.length,
-      mimeType: 'image/webp',
+      fileName: path.basename(originalName),
+      fileSize: file.buffer.length,
+      mimeType,
       adId,
       order: order ?? (maxOrder?.maxOrder ?? 0) + 1,
     });
