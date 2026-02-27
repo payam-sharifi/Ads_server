@@ -518,6 +518,9 @@ export class AdsService {
       }
     }
 
+    // Delete associated images from R2 and DB before soft-deleting the ad
+    await this.imagesService.removeByAdId(id);
+
     ad.deletedAt = new Date();
     await this.adsRepository.save(ad);
 

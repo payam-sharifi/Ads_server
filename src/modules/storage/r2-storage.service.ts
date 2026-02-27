@@ -207,15 +207,27 @@ export class R2StorageService {
    * Handles both public URLs and keys stored directly
    */
   extractKeyFromUrl(url: string): string | null {
-    if (url.startsWith('http')) {
-      if (this.publicUrlBase && url.startsWith(this.publicUrlBase)) {
-        return url.replace(this.publicUrlBase, '').replace(/^\//, '');
+    if (!url || typeof url !== 'string') return null;
+
+    if (url.startsWith('images/')) return url;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      const base = (this.publicUrlBase || '').trim().replace(/\/+$/, '');
+      if (base && url.startsWith(base)) {
+        const path = url.slice(base.length).replace(/^\//, '').split('?')[0].split('#')[0];
+        if (path.startsWith('images/')) return path;
       }
-      // Try to extract from path like .../images/uuid-name.webp
-      const match = url.match(/\/images\/[^/]+$/);
-      return match ? match[0].replace(/^\//, '') : null;
+      const match = url.match(/\/images\/[^/?#]+/);
+      if (match) return match[0].replace(/^\//, '');
+      try {
+        const parsed = new URL(url);
+        const path = parsed.pathname.replace(/^\//, '');
+        if (path.startsWith('images/')) return path;
+      } catch {
+        // ignore
+      }
+      return null;
     }
-    // Assume it's a key if not a full URL
-    return url.startsWith('images/') ? url : null;
+    return null;
   }
 }

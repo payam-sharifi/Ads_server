@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Image } from '../../entities/image.entity';
@@ -20,6 +20,7 @@ import * as path from 'path';
  */
 @Injectable()
 export class ImagesService {
+  private readonly logger = new Logger(ImagesService.name);
   private readonly useR2: boolean;
   private readonly apiBaseUrl: string;
 
@@ -222,6 +223,7 @@ export class ImagesService {
 
   /**
    * Delete image from R2 and database
+   * If the file doesn't exist in R2 (already deleted), still proceeds to remove the DB record
    */
   async remove(id: string): Promise<void> {
     const image = await this.imagesRepository.findOne({ where: { id } });
@@ -231,9 +233,40 @@ export class ImagesService {
 
     const key = this.getR2KeyFromStoredUrl(image.url);
     if (key && this.useR2) {
-      await this.r2Storage.delete(key);
+      try {
+        await this.r2Storage.delete(key);
+      } catch (err: any) {
+        this.logger.warn(
+          `R2 delete failed for key ${key} (image ${id}): ${err?.message || err}. Proceeding with DB removal.`,
+        );
+        // File may not exist in R2 (NoSuchKey) or other transient error
+        // Proceed to remove DB record to keep UI in sync
+      }
     }
 
     await this.imagesRepository.remove(image);
+  }
+
+  /**
+   * Delete all images for an ad from R2 and database (cascade)
+   * Called when an Ad is deleted
+   */
+  async removeByAdId(adId: string): Promise<void> {
+    const images = await this.imagesRepository.find({
+      where: { adId },
+    });
+
+    for (const image of images) {
+      const key = this.getR2KeyFromStoredUrl(image.url);
+      if (key && this.useR2) {
+        try {
+          await this.r2Storage.delete(key);
+        } catch {
+          // File may not exist in R2; proceed to remove DB record
+        }
+      }
+    }
+
+    await this.imagesRepository.remove(images);
   }
 }

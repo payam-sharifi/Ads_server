@@ -211,7 +211,7 @@ export class ImagesController {
   @ApiResponse({ status: 200, description: 'Image deleted successfully' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     const image = await this.imagesService.findOne(id);
-    const ad = await this.adsService.findOne(image.adId, false);
+    const ad = await this.adsService.findOne(image.adId, false, user);
 
     if (ad.userId !== user.id && user.role?.name !== RoleType.ADMIN && user.role?.name !== RoleType.SUPER_ADMIN) {
       throw new BadRequestException('You can only delete images from your own ads');
