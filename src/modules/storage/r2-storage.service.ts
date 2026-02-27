@@ -73,7 +73,7 @@ export class R2StorageService {
 
   /**
    * Generate a unique storage key for an image
-   * Always appends .webp since we convert all uploads to WebP via sharp
+   * Always appends .webp since we convert all uploads to WebP via Jimp
    */
   private generateKey(originalFilename: string): string {
     const sanitized = this.sanitizeFilename(originalFilename);

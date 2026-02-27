@@ -1,10 +1,20 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import * as sharp from 'sharp';
+import { createJimp } from '@jimp/core';
+import { defaultFormats, defaultPlugins } from 'jimp';
+import webp from '@jimp/wasm-webp';
+
+/**
+ * Custom Jimp instance with WebP support (pure JS/WASM, no native binaries)
+ */
+const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: defaultPlugins,
+});
 
 /**
  * Image Processor Service
  *
- * Compresses and converts images to WebP format using sharp.
+ * Compresses and converts images to WebP format using Jimp.
  * Quality: 75 (70-80% as per requirements)
  */
 @Injectable()
@@ -20,14 +30,16 @@ export class ImageProcessorService {
    */
   async processToWebP(buffer: Buffer): Promise<Buffer> {
     try {
-      const processed = await sharp(buffer)
-        .resize(this.maxWidth, this.maxHeight, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .webp({ quality: this.webpQuality })
-        .toBuffer();
+      const image = await Jimp.read(buffer);
 
+      // Resize to fit inside max dimensions (without enlarging)
+      if (image.width > this.maxWidth || image.height > this.maxHeight) {
+        image.contain({ w: this.maxWidth, h: this.maxHeight });
+      }
+
+      const processed = await image.getBuffer('image/webp', {
+        quality: this.webpQuality,
+      });
       return processed;
     } catch (error: any) {
       throw new BadRequestException(
@@ -41,11 +53,11 @@ export class ImageProcessorService {
    */
   async getMetadata(buffer: Buffer): Promise<{ width?: number; height?: number; format?: string }> {
     try {
-      const metadata = await sharp(buffer).metadata();
+      const image = await Jimp.read(buffer);
       return {
-        width: metadata.width,
-        height: metadata.height,
-        format: metadata.format,
+        width: image.width,
+        height: image.height,
+        format: image.mime || undefined,
       };
     } catch {
       return {};

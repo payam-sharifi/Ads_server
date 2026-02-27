@@ -68,13 +68,13 @@ For public image URLs (no signed URLs):
 When `CF_R2_PUBLIC_URL` is set, the API returns and stores **full public URLs** in the database:
 - Format: `{CF_R2_PUBLIC_URL}/images/{uuid}-{name}.webp`
 - Example: `https://pub-xxx.r2.dev/images/550e8400-e29b-41d4-a716-446655440000-photo.webp`
-- All keys explicitly include the `.webp` extension (images are converted via sharp)
+- All keys explicitly include the `.webp` extension (images are converted via Jimp)
 
 ## Image Processing
 
 All uploaded images are:
 
-- **Compressed** using sharp
+- **Compressed** using Jimp
 - **Converted to WebP** format (75% quality)
 - **Resized** if larger than 1920x1920 (maintaining aspect ratio)
 

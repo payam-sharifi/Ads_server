@@ -16,7 +16,7 @@ import * as path from 'path';
  * - List images for an ad
  * - Delete images from R2
  *
- * Uses R2 for cloud storage. Images are processed with sharp before upload.
+ * Uses R2 for cloud storage. Images are processed with Jimp before upload.
  */
 @Injectable()
 export class ImagesService {
@@ -91,7 +91,7 @@ export class ImagesService {
 
   /**
    * Upload image for an ad
-   * Processes with sharp (compress, WebP), uploads to R2, stores metadata.
+   * Processes with Jimp (compress, WebP), uploads to R2, stores metadata.
    *
    * @param file - Uploaded file (buffer from memory storage)
    * @param adId - Ad ID
