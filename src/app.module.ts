@@ -23,6 +23,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { GuardsModule } from './modules/guards/guards.module';
 import { EmailVerificationModule } from './modules/email-verification/email-verification.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 import { User } from './entities/user.entity';
 import { Category } from './entities/category.entity';
@@ -94,6 +95,7 @@ import { EmailVerification } from './entities/email-verification.entity';
     }),
 
     // Feature modules
+    StorageModule,
     GuardsModule,
     AuthModule,
     UsersModule,

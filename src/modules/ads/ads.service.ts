@@ -15,6 +15,7 @@ import { AuditAction } from '../../entities/audit-log.entity';
 import { RoleType } from '../../entities/role.entity';
 import { MessagesService } from '../messages/messages.service';
 import { PermissionsService } from '../permissions/permissions.service';
+import { ImagesService } from '../images/images.service';
 import { CategoryValidatorService } from './validators/category-validator.service';
 
 /**
@@ -41,6 +42,8 @@ export class AdsService {
     private messagesService: MessagesService,
     @Inject(forwardRef(() => PermissionsService))
     private permissionsService: PermissionsService,
+    @Inject(forwardRef(() => ImagesService))
+    private imagesService: ImagesService,
   ) {}
 
   /**
@@ -219,10 +222,11 @@ export class AdsService {
         imagesMap.get(img.adId)!.push(img);
       });
       
-      // Assign images to ads
-      data.forEach(ad => {
-        ad.images = imagesMap.get(ad.id) || [];
-      });
+      // Assign images to ads and resolve R2 URLs
+      for (const ad of data) {
+        const rawImages = imagesMap.get(ad.id) || [];
+        ad.images = await this.imagesService.resolveImageUrls(rawImages);
+      }
     }
 
     return {
@@ -265,6 +269,11 @@ export class AdsService {
     if (incrementViews && ad.status === AdStatus.APPROVED) {
       ad.views += 1;
       await this.adsRepository.save(ad);
+    }
+
+    // Resolve R2 image URLs for display
+    if (ad.images?.length) {
+      ad.images = await this.imagesService.resolveImageUrls(ad.images);
     }
 
     return ad;

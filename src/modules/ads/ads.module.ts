@@ -10,6 +10,7 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
 import { GuardsModule } from '../guards/guards.module';
 import { MessagesModule } from '../messages/messages.module';
 import { PermissionsModule } from '../permissions/permissions.module';
+import { ImagesModule } from '../images/images.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
     AuditLogModule,
     GuardsModule, // Provides PermissionsGuard and RolesGuard with their dependencies
     forwardRef(() => MessagesModule), // For sending messages when ad is rejected
+    forwardRef(() => ImagesModule), // For resolving R2 image URLs when returning ads
     PermissionsModule, // For checking admin permissions
   ],
   controllers: [AdsController],

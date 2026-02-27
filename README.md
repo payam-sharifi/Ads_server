@@ -54,7 +54,15 @@ REST API backend for the PersianAds website built with NestJS, TypeORM, and Post
    UPLOAD_DEST=./public/uploads
    
    CORS_ORIGIN=http://localhost:3000
+   
+   # Cloudflare R2 (required for image uploads)
+   CF_R2_ACCESS_KEY_ID=your_access_key_id
+   CF_R2_SECRET_ACCESS_KEY=your_secret_access_key
+   CF_R2_BUCKET_NAME=classified-ads-images
+   CF_R2_BUCKET_ENDPOINT=https://your-account-id.r2.cloudflarestorage.com
    ```
+
+   See [R2_SETUP.md](./R2_SETUP.md) for detailed R2 configuration.
 
 4. **Create PostgreSQL database:**
    ```bash
