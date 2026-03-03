@@ -25,9 +25,10 @@ export class CreateJobAdDto {
   @MinLength(10)
   jobDescription: string;
 
-  @ApiProperty({ example: 'uuid', description: 'City ID' })
+  @ApiPropertyOptional({ example: 'uuid', description: 'City ID (omit for "show in all cities")' })
   @IsString()
-  cityId: string;
+  @IsOptional()
+  cityId?: string;
 
   @ApiProperty({ enum: JobType, example: JobType.FULL_TIME })
   @IsEnum(JobType)

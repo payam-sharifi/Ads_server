@@ -25,9 +25,10 @@ export class CreateServiceAdDto {
   @MinLength(10)
   description: string;
 
-  @ApiProperty({ example: 'uuid', description: 'City ID' })
+  @ApiPropertyOptional({ example: 'uuid', description: 'City ID (omit for "show in all cities")' })
   @IsString()
-  cityId: string;
+  @IsOptional()
+  cityId?: string;
 
   @ApiProperty({ enum: ServiceCategory, example: ServiceCategory.CONSTRUCTION })
   @IsEnum(ServiceCategory)
