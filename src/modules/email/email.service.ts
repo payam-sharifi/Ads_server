@@ -1,6 +1,27 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
+type Locale = 'fa' | 'de';
+
+const verificationEmailTranslations = {
+  fa: {
+    subject: 'کد تأیید ثبت نام - JarBezan!',
+    greeting: (name: string) => `سلام ${name || 'کاربر عزیز'}،`,
+    instruction: 'برای تکمیل ثبت نام در سایت JarBezan!، لطفاً کد زیر را در صفحه تأیید وارد کنید:',
+    expiry: 'این کد تا ۳ دقیقه دیگر معتبر است.',
+    ignore: 'اگر شما این ایمیل را درخواست نکرده‌اید، لطفاً آن را نادیده بگیرید.',
+    dir: 'rtl' as const,
+  },
+  de: {
+    subject: 'Registrierungsbestätigungscode - JarBezan!',
+    greeting: (name: string) => `Hallo ${name || 'lieber Nutzer'},`,
+    instruction: 'Um Ihre Registrierung bei JarBezan! abzuschließen, geben Sie bitte den folgenden Code auf der Bestätigungsseite ein:',
+    expiry: 'Dieser Code ist 3 Minuten gültig.',
+    ignore: 'Wenn Sie diese E-Mail nicht angefordert haben, ignorieren Sie sie bitte.',
+    dir: 'ltr' as const,
+  },
+};
+
 /**
  * Email Service
  * 
@@ -44,46 +65,55 @@ export class EmailService {
 
   /**
    * Send verification code email
+   * @param locale - User's preferred language (fa: Persian, de: German). Defaults to fa.
    */
-  async sendVerificationCode(email: string, code: string, name: string): Promise<void> {
+  async sendVerificationCode(
+    email: string,
+    code: string,
+    name: string,
+    locale: Locale = 'fa',
+  ): Promise<void> {
+    const t = verificationEmailTranslations[locale];
+    const greeting = t.greeting(name);
+
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to: email,
-      subject: 'کد تأیید ثبت نام - PersianAds',
+      subject: t.subject,
       html: `
-        <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+        <div dir="${t.dir}" style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h1 style="color: #333; text-align: center; margin-bottom: 30px;">کد تأیید ثبت نام</h1>
+            <h1 style="color: #333; text-align: center; margin-bottom: 30px;">${t.subject}</h1>
             <p style="color: #666; font-size: 16px; line-height: 1.6;">
-              سلام ${name || 'کاربر عزیز'}،
+              ${greeting}
             </p>
             <p style="color: #666; font-size: 16px; line-height: 1.6;">
-              برای تکمیل ثبت نام در سایت PersianAds، لطفاً کد زیر را در صفحه تأیید وارد کنید:
+              ${t.instruction}
             </p>
             <div style="background-color: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; margin: 30px 0; border-radius: 5px;">
               <span style="font-size: 32px; font-weight: bold; color: #dc3545; letter-spacing: 8px; font-family: 'Courier New', monospace;">${code}</span>
             </div>
             <p style="color: #666; font-size: 14px; line-height: 1.6;">
-              این کد تا ۳ دقیقه دیگر معتبر است.
+              ${t.expiry}
             </p>
             <p style="color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-              اگر شما این ایمیل را درخواست نکرده‌اید، لطفاً آن را نادیده بگیرید.
+              ${t.ignore}
             </p>
           </div>
         </div>
       `,
       text: `
-کد تأیید ثبت نام
+${t.subject}
 
-سلام ${name || 'کاربر عزیز'}،
+${greeting}
 
-برای تکمیل ثبت نام در سایت PersianAds، لطفاً کد زیر را در صفحه تأیید وارد کنید:
+${t.instruction}
 
 ${code}
 
-این کد تا ۳ دقیقه دیگر معتبر است.
+${t.expiry}
 
-اگر شما این ایمیل را درخواست نکرده‌اید، لطفاً آن را نادیده بگیرید.
+${t.ignore}
       `,
     };
 

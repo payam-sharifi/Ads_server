@@ -60,8 +60,9 @@ export class EmailVerificationService {
 
     await this.emailVerificationRepository.save(verification);
 
-    // Send email
-    await this.emailService.sendVerificationCode(email, code, signupData.name);
+    // Send email (use locale from signup data, default to fa)
+    const locale = signupData.locale || 'fa';
+    await this.emailService.sendVerificationCode(email, code, signupData.name, locale);
 
     return { code, expiresAt };
   }

@@ -1,6 +1,8 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsIn } from 'class-validator';
 import { RoleType } from '../../../entities/role.entity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+export type Locale = 'fa' | 'de';
 
 /**
  * DTO for creating a new user (signup)
@@ -43,5 +45,14 @@ export class CreateUserDto {
   @IsEnum(RoleType)
   @IsOptional()
   role?: RoleType;
+
+  @ApiPropertyOptional({ 
+    enum: ['fa', 'de'],
+    example: 'fa',
+    description: 'Preferred language for email (fa: Persian, de: German). Defaults to fa.',
+  })
+  @IsIn(['fa', 'de'])
+  @IsOptional()
+  locale?: Locale;
 }
 
