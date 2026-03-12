@@ -262,6 +262,7 @@ async function seed() {
         name: { 
           fa: catDef.name.fa,
           de: catDef.name.de,
+          en: catDef.name.en,
         },
         icon: catDef.icon,
         categoryType: catDef.id,

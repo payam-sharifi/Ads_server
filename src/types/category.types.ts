@@ -230,6 +230,7 @@ export interface CategoryDefinition {
   name: {
     fa: string;
     de: string;
+    en: string;
   };
   icon: string;
   metadataSchema: 'real_estate' | 'vehicles' | 'services' | 'jobs' | 'misc';
@@ -238,37 +239,37 @@ export interface CategoryDefinition {
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   {
     id: MainCategoryType.REAL_ESTATE,
-    name: { fa: 'املاک', de: 'Immobilien' },
+    name: { fa: 'املاک', de: 'Immobilien', en: 'Real Estate' },
     icon: '🏠',
     metadataSchema: 'real_estate',
   },
   {
     id: MainCategoryType.VEHICLES,
-    name: { fa: 'وسایل نقلیه', de: 'Auto, Rad & Boot' },
+    name: { fa: 'وسایل نقلیه', de: 'Auto, Rad & Boot', en: 'Vehicles' },
     icon: '🚗',
     metadataSchema: 'vehicles',
   },
   {
     id: MainCategoryType.SERVICES,
-    name: { fa: 'خدمات', de: 'Dienstleistungen' },
+    name: { fa: 'خدمات', de: 'Dienstleistungen', en: 'Services' },
     icon: '🛠️',
     metadataSchema: 'services',
   },
   {
     id: MainCategoryType.JOBS,
-    name: { fa: 'استخدام و کاریابی', de: 'Jobs' },
+    name: { fa: 'استخدام و کاریابی', de: 'Jobs', en: 'Jobs' },
     icon: '💼',
     metadataSchema: 'jobs',
   },
   {
     id: MainCategoryType.PERSONAL_HOME,
-    name: { fa: 'لوازم شخصی و منزل', de: 'Haus & Persönliches' },
+    name: { fa: 'لوازم شخصی و منزل', de: 'Haus & Persönliches', en: 'Personal Home' },
     icon: '🛋️',
     metadataSchema: 'misc',
   },
   {
     id: MainCategoryType.MISC,
-    name: { fa: 'متفرقه', de: 'Sonstiges' },
+    name: { fa: 'متفرقه', de: 'Sonstiges', en: 'Misc' },
     icon: '📦',
     metadataSchema: 'misc',
   },
