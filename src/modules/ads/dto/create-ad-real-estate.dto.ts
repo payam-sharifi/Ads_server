@@ -11,7 +11,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { RealEstateOfferType, PropertyType } from '../../../types/category.types';
+import { RealEstateOfferType, PropertyType, HouseSubtype } from '../../../types/category.types';
 
 /**
  * DTO for creating a Real Estate ad
@@ -40,6 +40,17 @@ export class CreateRealEstateAdDto {
   @ApiProperty({ enum: PropertyType, example: PropertyType.APARTMENT })
   @IsEnum(PropertyType)
   propertyType: PropertyType;
+
+  @ApiPropertyOptional({ enum: HouseSubtype, description: 'House subtype (Haustyp), only for propertyType house' })
+  @IsEnum(HouseSubtype)
+  @IsOptional()
+  houseSubtype?: HouseSubtype;
+
+  @ApiPropertyOptional({ example: 400, description: 'Plot / lot size in m² (Grundstücksfläche)' })
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  plotArea?: number;
 
   // Location
   @ApiProperty({ example: '10115', description: 'Postal code' })
@@ -125,6 +136,11 @@ export class CreateRealEstateAdDto {
   @IsBoolean()
   @IsOptional()
   balcony?: boolean;
+
+  @ApiPropertyOptional({ example: true, description: 'Has terrace (Terrasse)' })
+  @IsBoolean()
+  @IsOptional()
+  terrace?: boolean;
 
   @ApiPropertyOptional({ example: true, description: 'Has elevator' })
   @IsBoolean()

@@ -306,6 +306,16 @@ async function seed() {
     if (realEstateCategory) {
       const propertyTypes = ['apartment', 'house', 'commercial', 'land', 'parking'];
       const offerTypes = ['rent', 'sale'];
+      const houseSubtypes = [
+        'detached',
+        'terraced',
+        'multi_family',
+        'bungalow',
+        'farmhouse',
+        'semi_detached',
+        'villa',
+        'other',
+      ];
       for (let i = 0; i < 25; i++) {
         const offerType = offerTypes[Math.floor(Math.random() * offerTypes.length)];
         const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
@@ -328,9 +338,16 @@ async function seed() {
             yearBuilt: 2000 + Math.floor(Math.random() * 24),
             furnished: Math.random() > 0.5,
             balcony: Math.random() > 0.5,
+            terrace: Math.random() > 0.5,
             elevator: Math.random() > 0.5,
             parkingIncluded: Math.random() > 0.5,
             postalCode: `${Math.floor(Math.random() * 90000) + 10000}`,
+            ...(propertyType === 'house'
+              ? {
+                  houseSubtype: houseSubtypes[Math.floor(Math.random() * houseSubtypes.length)],
+                  plotArea: Math.floor(Math.random() * 900) + 120,
+                }
+              : {}),
             ...(offerType === 'rent' ? { coldRent: Math.floor(Math.random() * 2000) + 500 } : {}),
           },
         });

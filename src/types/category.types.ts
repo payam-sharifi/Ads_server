@@ -35,10 +35,26 @@ export enum PropertyType {
   PARKING = 'parking',
 }
 
+/** Haustyp — aligned with common German listing sites (e.g. Kleinanzeigen house categories) */
+export enum HouseSubtype {
+  DETACHED = 'detached',
+  TERRACED = 'terraced',
+  MULTI_FAMILY = 'multi_family',
+  BUNGALOW = 'bungalow',
+  FARMHOUSE = 'farmhouse',
+  SEMI_DETACHED = 'semi_detached',
+  VILLA = 'villa',
+  OTHER = 'other',
+}
+
 export interface RealEstateMetadata {
   // Basic
   offerType: RealEstateOfferType;
   propertyType: PropertyType;
+  /** If propertyType is house — Kleinanzeigen-style Haustyp */
+  houseSubtype?: HouseSubtype;
+  /** Plot / lot size in m² (Grundstücksfläche) */
+  plotArea?: number;
   
   // Location
   postalCode: string;
@@ -61,6 +77,7 @@ export interface RealEstateMetadata {
   // Features
   furnished?: boolean;
   balcony?: boolean;
+  terrace?: boolean;
   elevator?: boolean;
   parkingIncluded?: boolean;
   cellar?: boolean;

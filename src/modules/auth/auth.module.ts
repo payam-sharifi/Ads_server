@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { EmailVerificationModule } from '../email-verification/email-verification.module';
 import { JwtStrategy } from '../../strategies/jwt.strategy';
+import { TurnstileGuard } from '../../guards/turnstile.guard';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { JwtStrategy } from '../../strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, TurnstileGuard],
   exports: [AuthService],
 })
 export class AuthModule {}

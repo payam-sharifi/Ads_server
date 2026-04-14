@@ -83,6 +83,9 @@ export class CategoryValidatorService {
       elevator: dto.elevator,
       parkingIncluded: dto.parkingIncluded,
       cellar: dto.cellar,
+      houseSubtype: dto.houseSubtype,
+      plotArea: dto.plotArea,
+      terrace: dto.terrace,
     });
 
     const errors = await validate(realEstateDto);
@@ -220,9 +223,12 @@ export class CategoryValidatorService {
       availableFrom: dto.availableFrom,
       furnished: dto.furnished,
       balcony: dto.balcony,
+      terrace: dto.terrace,
       elevator: dto.elevator,
       parkingIncluded: dto.parkingIncluded,
       cellar: dto.cellar,
+      houseSubtype: dto.houseSubtype,
+      plotArea: dto.plotArea,
     };
   }
 

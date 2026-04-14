@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
@@ -7,7 +7,8 @@ import { ApiProperty } from '@nestjs/swagger';
  * Example request body:
  * {
  *   "email": "john@example.com",
- *   "password": "securePassword123"
+ *   "password": "securePassword123",
+ *   "cf-turnstile-token": "<token from Cloudflare Turnstile>"
  * }
  */
 export class LoginDto {
@@ -19,5 +20,10 @@ export class LoginDto {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @ApiProperty({ description: 'Cloudflare Turnstile token' })
+  @IsString()
+  @IsNotEmpty()
+  'cf-turnstile-token': string;
 }
 

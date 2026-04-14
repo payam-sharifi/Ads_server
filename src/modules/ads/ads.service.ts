@@ -80,6 +80,13 @@ export class AdsService {
       minArea,
       maxArea,
       rooms,
+      houseSubtype,
+      minPlotArea,
+      maxPlotArea,
+      minYearBuilt,
+      maxYearBuilt,
+      furnished: furnishedFilter,
+      terrace: terraceFilter,
     } = filters;
 
     const query = this.adsRepository.createQueryBuilder('ad');
@@ -173,20 +180,74 @@ export class AdsService {
       query.andWhere("ad.metadata ->> 'offerType' = :offerType", { offerType });
     }
 
-    if (propertyType) {
+    if (houseSubtype) {
+      query.andWhere("ad.metadata ->> 'propertyType' = 'house'");
+      query.andWhere("ad.metadata ->> 'houseSubtype' = :houseSubtype", { houseSubtype });
+    } else if (propertyType) {
       query.andWhere("ad.metadata ->> 'propertyType' = :propertyType", { propertyType });
     }
 
+    // Wohnfläche: stored as livingArea (legacy seed may use area)
     if (minArea) {
-      query.andWhere("CAST(ad.metadata ->> 'area' AS INTEGER) >= :minArea", { minArea });
+      query.andWhere(
+        `COALESCE(
+          NULLIF(TRIM(ad.metadata->>'livingArea'),'')::numeric,
+          NULLIF(TRIM(ad.metadata->>'area'),'')::numeric
+        ) >= :minArea`,
+        { minArea },
+      );
     }
 
     if (maxArea) {
-      query.andWhere("CAST(ad.metadata ->> 'area' AS INTEGER) <= :maxArea", { maxArea });
+      query.andWhere(
+        `COALESCE(
+          NULLIF(TRIM(ad.metadata->>'livingArea'),'')::numeric,
+          NULLIF(TRIM(ad.metadata->>'area'),'')::numeric
+        ) <= :maxArea`,
+        { maxArea },
+      );
+    }
+
+    if (minPlotArea) {
+      query.andWhere("NULLIF(TRIM(ad.metadata->>'plotArea'),'')::numeric >= :minPlotArea", {
+        minPlotArea,
+      });
+    }
+
+    if (maxPlotArea) {
+      query.andWhere("NULLIF(TRIM(ad.metadata->>'plotArea'),'')::numeric <= :maxPlotArea", {
+        maxPlotArea,
+      });
+    }
+
+    if (minYearBuilt) {
+      query.andWhere("CAST(ad.metadata ->> 'yearBuilt' AS INTEGER) >= :minYearBuilt", {
+        minYearBuilt,
+      });
+    }
+
+    if (maxYearBuilt) {
+      query.andWhere("CAST(ad.metadata ->> 'yearBuilt' AS INTEGER) <= :maxYearBuilt", {
+        maxYearBuilt,
+      });
+    }
+
+    if (furnishedFilter === 'true') {
+      query.andWhere("(ad.metadata->>'furnished') = 'true'");
+    }
+
+    if (terraceFilter === 'true') {
+      query.andWhere("(ad.metadata->>'terrace') = 'true'");
     }
 
     if (rooms) {
-      query.andWhere("ad.metadata ->> 'rooms' = :rooms", { rooms });
+      if (rooms === '5+') {
+        query.andWhere(
+          "COALESCE(NULLIF(TRIM(ad.metadata->>'rooms'),'')::numeric, 0) >= 5",
+        );
+      } else {
+        query.andWhere("TRIM(ad.metadata ->> 'rooms') = TRIM(:rooms)", { rooms });
+      }
     }
 
     // Sorting

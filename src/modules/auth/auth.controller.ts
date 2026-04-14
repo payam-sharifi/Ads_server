@@ -7,6 +7,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { VerifyCodeDto } from '../email-verification/dto/verify-code.dto';
 import { Public } from '../../decorators/public.decorator';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
+import { TurnstileGuard } from '../../guards/turnstile.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { User } from '../../entities/user.entity';
 
@@ -94,7 +95,8 @@ export class AuthController {
    *   POST /api/auth/login
    *   Body: {
    *     "email": "john@example.com",
-   *     "password": "securePassword123"
+   *     "password": "securePassword123",
+   *     "cf-turnstile-token": "<token from Cloudflare Turnstile widget>"
    *   }
    * 
    * Response:
@@ -117,6 +119,7 @@ export class AuthController {
    */
   @Post('login')
   @Public()
+  @UseGuards(TurnstileGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Login successful' })

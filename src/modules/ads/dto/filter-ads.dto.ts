@@ -119,6 +119,45 @@ export class FilterAdsDto {
   @IsOptional()
   rooms?: string;
 
+  @ApiPropertyOptional({ example: 'detached', description: 'House subtype / Haustyp (real estate)' })
+  @IsString()
+  @IsOptional()
+  houseSubtype?: string;
+
+  @ApiPropertyOptional({ example: 200, description: 'Minimum plot area m² (Grundstück)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  minPlotArea?: number;
+
+  @ApiPropertyOptional({ example: 2000, description: 'Maximum plot area m²' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  maxPlotArea?: number;
+
+  @ApiPropertyOptional({ example: 1990, description: 'Minimum year built (real estate)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  minYearBuilt?: number;
+
+  @ApiPropertyOptional({ example: 2024, description: 'Maximum year built (real estate)' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  maxYearBuilt?: number;
+
+  @ApiPropertyOptional({ example: 'true', description: 'Only furnished listings if true' })
+  @IsString()
+  @IsOptional()
+  furnished?: string;
+
+  @ApiPropertyOptional({ example: 'true', description: 'Only listings with terrace if true' })
+  @IsString()
+  @IsOptional()
+  terrace?: string;
+
   @ApiPropertyOptional({ example: 'uuid', description: 'Filter by user ID (owner)' })
   @IsUUID()
   @IsOptional()

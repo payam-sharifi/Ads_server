@@ -169,6 +169,21 @@ export class CreateAdDto {
   @ValidateIf((o) => o.categoryId === MainCategoryType.REAL_ESTATE)
   cellar?: boolean;
 
+  @ApiPropertyOptional({ description: 'Real Estate: house subtype (Haustyp)' })
+  @IsOptional()
+  houseSubtype?: string;
+
+  @ApiPropertyOptional({ description: 'Real Estate: plot area m²' })
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
+  plotArea?: number;
+
+  @ApiPropertyOptional({ description: 'Real Estate: terrace' })
+  @IsOptional()
+  terrace?: boolean;
+
   // Vehicle fields
   @ApiPropertyOptional({ enum: ['car', 'motorcycle', 'van', 'bike'], description: 'Vehicle: type' })
   @ValidateIf((o) => o.categoryId === MainCategoryType.VEHICLES)
